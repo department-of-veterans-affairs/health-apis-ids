@@ -27,7 +27,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 public class IdServiceV1ApiControllerTest {
-
   @Rule public final ExpectedException thrown = ExpectedException.none();
   @Mock ResourceIdentityDetailRepository repo;
   @Mock UuidGenerator uuidGenerator;
@@ -94,6 +93,7 @@ public class IdServiceV1ApiControllerTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void registrationForAlreadyRegisteredIdentitiesDoesNotRegisterTwice() {
     ResourceIdentity alreadyRegistered = resourceIdentity(1);
     ResourceIdentity notRegisteredYet = resourceIdentity(2);
@@ -110,7 +110,8 @@ public class IdServiceV1ApiControllerTest {
         .containsExactlyInAnyOrder(
             registration("x", alreadyRegistered), registration("u2", notRegisteredYet));
 
-    ArgumentCaptor<Iterable> saveArgs = ArgumentCaptor.forClass(Iterable.class);
+    ArgumentCaptor<Iterable<ResourceIdentityDetail>> saveArgs =
+        ArgumentCaptor.forClass(Iterable.class);
     verify(repo)
         .findBySystemAndResourceAndIdentifier(
             alreadyRegistered.system(),
@@ -133,7 +134,8 @@ public class IdServiceV1ApiControllerTest {
     when(uuidGenerator.apply(id1)).thenReturn("1");
     when(uuidGenerator.apply(id2)).thenReturn("2");
 
-    ArgumentCaptor<Iterable> saveArgs = ArgumentCaptor.forClass(Iterable.class);
+    ArgumentCaptor<Iterable<ResourceIdentityDetail>> saveArgs =
+        ArgumentCaptor.forClass(Iterable.class);
 
     ResponseEntity<List<Registration>> actual = controller.register(asList(id1, id2));
 

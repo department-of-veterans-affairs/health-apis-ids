@@ -39,7 +39,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHan
 @SuppressWarnings("DefaultAnnotationParam")
 @RunWith(Parameterized.class)
 public class WebExceptionHandlerTest {
-
   @Parameter(0)
   public HttpStatus status;
 
@@ -81,10 +80,9 @@ public class WebExceptionHandlerTest {
         new ExceptionHandlerExceptionResolver() {
           @Override
           protected ServletInvocableHandlerMethod getExceptionHandlerMethod(
-              HandlerMethod handlerMethod, Exception exception) {
+              HandlerMethod handlerMethod, Exception ex) {
             Method method =
-                new ExceptionHandlerMethodResolver(WebExceptionHandler.class)
-                    .resolveMethod(exception);
+                new ExceptionHandlerMethodResolver(WebExceptionHandler.class).resolveMethod(ex);
             assertThat(method).isNotNull();
             return new ServletInvocableHandlerMethod(exceptionHandler, method);
           }
