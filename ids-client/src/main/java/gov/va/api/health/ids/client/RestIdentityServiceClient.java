@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,21 +18,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
-/**
- * Rest client for the identity service. Requires `identityservice.url` to be defined a property.
- */
-@Component
-@AllArgsConstructor(onConstructor = @__({@Autowired}))
+/** Rest client for the identity service. */
 @Slf4j
-public class RestIdentityServiceClient implements IdentityService {
-  private final RestTemplate restTemplate;
+@Builder
+public final class RestIdentityServiceClient implements IdentityService {
+  @NonNull private final RestTemplate restTemplate;
 
-  @Value("${identityservice.url}")
-  private final String url;
+  @NonNull private final String url;
 
   /**
    * If the given value is null, an IllegalStateException is thrown. Otherwise, the value is
