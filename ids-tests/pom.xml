@@ -75,11 +75,6 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.hibernate.validator</groupId>
-      <artifactId>hibernate-validator</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>org.glassfish</groupId>
       <artifactId>javax.el</artifactId>
       <scope>compile</scope>
