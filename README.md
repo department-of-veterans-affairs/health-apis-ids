@@ -55,12 +55,7 @@ THEN a 404 response is returned.
 git-secrets must be installed and configured to scan for AWS entries and the patterns in
 [.git-secrets-patterns](.git-secrets-patterns). Exclusions are managed in
 [.gitallowed](.gitallowed).
-git-secrets should be enabled with the following commands:
-
-```
-git secrets --register-aws
-git secrets --add-provider -- cat .git-secrets-patterns
-```
+The [init-git-secrets.sh](src/scripts/init-git-secrets.sh) script can be used to simply set up.
 
 > ###### !!  Mac users
 > If using [Homebrew](https://brew.sh/), use `brew install --HEAD git-secrets` as decribed
