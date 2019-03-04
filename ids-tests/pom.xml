@@ -11,7 +11,6 @@
   <packaging>jar</packaging>
   <properties>
     <jacoco.skip>true</jacoco.skip>
-    <jacoco.coverage>0.1</jacoco.coverage>
     <sentinel.skipLaunch>false</sentinel.skipLaunch>
     <process-exec-maven-plugin.version>0.7</process-exec-maven-plugin.version>
     <maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
