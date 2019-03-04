@@ -12,6 +12,7 @@
   <packaging>jar</packaging>
   <properties>
     <groups>gov.va.api.health.sentinel.categories.Local</groups>
+    <sentinel.skipLaunch>false</sentinel.skipLaunch>
   </properties>
   <dependencies>
     <dependency>
@@ -26,39 +27,15 @@
       <version>1.2.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>gov.va.api.health</groupId>
-      <artifactId>service-auto-config</artifactId>
-      <version>1.1.0</version>
-    </dependency>
-    <dependency>
       <groupId>gov.va.dvp</groupId>
       <artifactId>lighthouse-keystore</artifactId>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
       <version>${h2.version}</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.rest-assured</groupId>
-      <artifactId>rest-assured</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <scope>compile</scope>
     </dependency>
   </dependencies>
   <build>
