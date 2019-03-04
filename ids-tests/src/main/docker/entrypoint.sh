@@ -50,8 +50,6 @@ defaultTests() {
 }
 
 doTest() {
-  #trustServer qa-argonaut.lighthouse.va.gov
-  #trustServer staging-argonaut.lighthouse.va.gov
   local tests="$@"
   [ -z "$tests" ] && tests=$(defaultTests)
   local filter
