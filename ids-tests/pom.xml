@@ -15,7 +15,6 @@
     <sentinel.skipLaunch>false</sentinel.skipLaunch>
     <process-exec-maven-plugin.version>0.7</process-exec-maven-plugin.version>
     <maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
-    <selenium.version>3.141.59</selenium.version>
     <!-- JUnit -->
     <groups>gov.va.api.health.sentinel.categories.Local</groups>
     <!-- Docker -->
@@ -24,11 +23,6 @@
     <docker.tag>latest</docker.tag>
   </properties>
   <dependencies>
-    <dependency>
-      <groupId>org.seleniumhq.selenium</groupId>
-      <artifactId>selenium-java</artifactId>
-      <version>${selenium.version}</version>
-    </dependency>
     <dependency>
       <groupId>gov.va.dvp</groupId>
       <artifactId>lighthouse-keystore</artifactId>
