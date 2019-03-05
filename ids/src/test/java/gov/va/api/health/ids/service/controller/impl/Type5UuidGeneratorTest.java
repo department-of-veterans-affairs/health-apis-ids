@@ -8,7 +8,6 @@ import lombok.Getter;
 import org.junit.Test;
 
 public class Type5UuidGeneratorTest {
-
   @Getter
   private final Type5UuidGenerator generator = new Type5UuidGenerator(UUID.randomUUID().toString());
 

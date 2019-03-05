@@ -6,11 +6,9 @@ import java.util.Objects;
 import org.junit.Test;
 
 public class ResourceIdentityDetailTest {
-
   /** Verifies no arg constructor, setters, equality only compares ID field. */
   @Test
   public void jpaCompliance() {
-
     // has no arg constructor
     ResourceIdentityDetail detail = new ResourceIdentityDetail();
     detail.pk(1);

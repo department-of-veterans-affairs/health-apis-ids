@@ -25,7 +25,6 @@ import javax.ws.rs.Path;
 )
 @Path("api/v1/ids")
 public interface IdentityService {
-
   @Operation(
     summary = "Look up a resource identity",
     description =

@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 @Service
 public class Type5UuidGenerator implements UuidGenerator {
-
   @Value("${uuid.seed}")
   private String seed;
 

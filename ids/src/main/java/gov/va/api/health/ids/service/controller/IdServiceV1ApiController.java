@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 @Slf4j
 public class IdServiceV1ApiController {
-
   private final ResourceIdentityDetailRepository repository;
   private final UuidGenerator uuidGenerator;
 
@@ -50,7 +49,6 @@ public class IdServiceV1ApiController {
   @SneakyThrows
   public ResponseEntity<List<ResourceIdentity>> lookup(
       @Valid @PathVariable("publicId") @Pattern(regexp = "[-A-Za-z0-9]+") String publicId) {
-
     List<ResourceIdentity> identities =
         repository
             .findByUuid(publicId)

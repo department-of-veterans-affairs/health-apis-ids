@@ -43,7 +43,6 @@ import lombok.ToString;
 @Setter
 @ToString
 public class ResourceIdentityDetail {
-
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")

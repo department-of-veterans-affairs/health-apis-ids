@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class IdServiceHomeController {
-
   private static final YAMLMapper MAPPER = new YAMLMapper();
 
   @Value("classpath:/api-v1.yaml")

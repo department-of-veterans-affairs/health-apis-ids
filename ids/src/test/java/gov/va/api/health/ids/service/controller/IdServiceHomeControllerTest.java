@@ -19,7 +19,6 @@ import org.springframework.util.StreamUtils;
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = {IdServiceHomeController.class})
 public class IdServiceHomeControllerTest {
-
   @Autowired private MockMvc mvc;
 
   @Test
