@@ -5,8 +5,8 @@ import java.util.Optional;
 import lombok.experimental.UtilityClass;
 
 /**
- * Test clients for interacting with different services (ids, mr-anderson, argonaut) in a {@link
- * SystemDefinition}.
+ * Utility class that provides a {@link TestClient} for interacting with the ID service, in local
+ * environment only.
  */
 @UtilityClass
 public final class TestClients {
