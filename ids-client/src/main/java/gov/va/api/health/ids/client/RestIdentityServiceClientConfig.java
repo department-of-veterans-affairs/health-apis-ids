@@ -21,8 +21,13 @@ public class RestIdentityServiceClientConfig {
   @Value("${identityservice.url}")
   private final String url;
 
+  /** Create a new IdentityService that uses REST for communication. */
   @Bean
   public IdentityService restIdentityServiceClient() {
-    return RestIdentityServiceClient.builder().restTemplate(restTemplate).url(url).build();
+    return RestIdentityServiceClient.builder()
+        .baseRestTemplate(restTemplate)
+        .newRestTemplateSupplier(RestTemplate::new)
+        .url(url)
+        .build();
   }
 }
