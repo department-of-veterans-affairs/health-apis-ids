@@ -76,7 +76,7 @@ public class RestIdentityServiceClientTest {
 
   @SneakyThrows
   @Test()
-  public void lookupErrorHanderAllowsOk() {
+  public void lookupErrorHandlerAllowsOk() {
     ClientHttpResponse r = mock(ClientHttpResponse.class);
     when(r.getStatusCode()).thenReturn(HttpStatus.OK);
     LookupErrorHandler h = new LookupErrorHandler("x");
@@ -86,7 +86,7 @@ public class RestIdentityServiceClientTest {
 
   @SneakyThrows
   @Test(expected = UnknownIdentity.class)
-  public void lookupErrorHanderHandlesNotFound() {
+  public void lookupErrorHandlerHandlesNotFound() {
     ClientHttpResponse r = mock(ClientHttpResponse.class);
     when(r.getStatusCode()).thenReturn(HttpStatus.NOT_FOUND);
     LookupErrorHandler h = new LookupErrorHandler("x");
@@ -96,7 +96,7 @@ public class RestIdentityServiceClientTest {
 
   @SneakyThrows
   @Test(expected = LookupFailed.class)
-  public void lookupErrorHanderHandlesNotOk() {
+  public void lookupErrorHandlerHandlesNotOk() {
     ClientHttpResponse r = mock(ClientHttpResponse.class);
     when(r.getStatusCode()).thenReturn(HttpStatus.INTERNAL_SERVER_ERROR);
     LookupErrorHandler h = new LookupErrorHandler("x");
@@ -151,7 +151,7 @@ public class RestIdentityServiceClientTest {
 
   @SneakyThrows
   @Test()
-  public void registerErrorHanderAllowsOk() {
+  public void registerErrorHandlerAllowsOk() {
     ClientHttpResponse r = mock(ClientHttpResponse.class);
     when(r.getStatusCode()).thenReturn(HttpStatus.OK);
     RegisterErrorHandler h = new RegisterErrorHandler();
@@ -161,7 +161,7 @@ public class RestIdentityServiceClientTest {
 
   @SneakyThrows
   @Test(expected = RegistrationFailed.class)
-  public void registerErrorHanderHandlesNotOk() {
+  public void registerErrorHandlerHandlesNotOk() {
     ClientHttpResponse r = mock(ClientHttpResponse.class);
     when(r.getStatusCode()).thenReturn(HttpStatus.INTERNAL_SERVER_ERROR);
     RegisterErrorHandler h = new RegisterErrorHandler();
