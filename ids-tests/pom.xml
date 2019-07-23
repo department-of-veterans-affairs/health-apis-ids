@@ -4,7 +4,7 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>test-starter</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.7</version>
     <relativePath/>
   </parent>
   <artifactId>ids-tests</artifactId>
