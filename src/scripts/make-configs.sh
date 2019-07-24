@@ -59,7 +59,6 @@ makeConfig() {
   local target="$REPO/$project/config/application-${profile}.properties"
   [ -f "$target" ] && mv -v $target $target.$MARKER
   grep -E '(.*= *unset)' "$REPO/$project/src/main/resources/application.properties" \
-    | grep -Ev '(^server\.ssl\.|^ssl\.)' \
     > "$target"
 }
 
