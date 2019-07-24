@@ -6,6 +6,7 @@ import gov.va.api.health.ids.api.ResourceIdentity;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
@@ -25,9 +26,17 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @Builder
 public final class RestIdentityServiceClient implements IdentityService {
-  @NonNull private final RestTemplate restTemplate;
+
+  /**
+   * This rest template is used a base for each request. However, it is not used to make requests
+   * directly.
+   */
+  @NonNull private final RestTemplate baseRestTemplate;
 
   @NonNull private final String url;
+
+  /** This is used to create a new rest template that can be modified for each request. */
+  @NonNull private final Supplier<RestTemplate> newRestTemplateSupplier;
 
   /**
    * If the given value is null, an IllegalStateException is thrown. Otherwise, the value is
@@ -50,7 +59,7 @@ public final class RestIdentityServiceClient implements IdentityService {
   @Override
   public List<ResourceIdentity> lookup(String id) {
     log.info("Looking up {}", id);
-    restTemplate.setErrorHandler(new LookupErrorHandler(id));
+    RestTemplate restTemplate = newRestTemplate(new LookupErrorHandler(id));
     ResponseEntity<List<ResourceIdentity>> response =
         notNull(
             restTemplate.exchange(
@@ -68,11 +77,36 @@ public final class RestIdentityServiceClient implements IdentityService {
     return body;
   }
 
+  /**
+   * RestTemplate shouldn't be modified since they can be re-used across threads. We will create a
+   * new template per request using the standard template as a base. This method create a copy of
+   * the base rest template with a custom error handler.
+   */
+  private RestTemplate newRestTemplate(ResponseErrorHandler errorHandler) {
+    RestTemplate copy = newRestTemplateSupplier.get();
+    if (baseRestTemplate.getMessageConverters() != null
+        && !baseRestTemplate.getMessageConverters().isEmpty()) {
+      copy.setMessageConverters(baseRestTemplate.getMessageConverters());
+    }
+    if (baseRestTemplate.getUriTemplateHandler() != null) {
+      copy.setUriTemplateHandler(baseRestTemplate.getUriTemplateHandler());
+    }
+    if (baseRestTemplate.getInterceptors() != null
+        && !baseRestTemplate.getInterceptors().isEmpty()) {
+      copy.setInterceptors(baseRestTemplate.getInterceptors());
+    }
+    if (baseRestTemplate.getRequestFactory() != null) {
+      copy.setRequestFactory(baseRestTemplate.getRequestFactory());
+    }
+    copy.setErrorHandler(errorHandler);
+    return copy;
+  }
+
   @Override
   public List<Registration> register(List<ResourceIdentity> identities) {
     log.info("Registering {} identities", identities.size());
     log.debug("Registering {}", identities);
-    restTemplate.setErrorHandler(new RegisterErrorHandler());
+    RestTemplate restTemplate = newRestTemplate(new RegisterErrorHandler());
     ResponseEntity<List<Registration>> response =
         notNull(
             restTemplate.exchange(
@@ -91,6 +125,7 @@ public final class RestIdentityServiceClient implements IdentityService {
 
   @AllArgsConstructor
   static class LookupErrorHandler implements ResponseErrorHandler {
+
     private final String id;
 
     @Override
@@ -110,6 +145,7 @@ public final class RestIdentityServiceClient implements IdentityService {
   }
 
   static class RegisterErrorHandler implements ResponseErrorHandler {
+
     @Override
     public void handleError(ClientHttpResponse response) throws IOException {
       if (response.getStatusCode() != HttpStatus.OK) {

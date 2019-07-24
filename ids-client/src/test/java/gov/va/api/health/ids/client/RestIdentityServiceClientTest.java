@@ -34,13 +34,15 @@ import org.springframework.web.client.RestTemplate;
 @SuppressWarnings("unchecked")
 public class RestIdentityServiceClientTest {
   @Rule public final ExpectedException thrown = ExpectedException.none();
+  @Mock RestTemplate baseRestTemplate;
   @Mock RestTemplate restTemplate;
   private RestIdentityServiceClient client;
 
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    client = new RestIdentityServiceClient(restTemplate, "http://whatever.com");
+    client =
+        new RestIdentityServiceClient(baseRestTemplate, "http://whatever.com", () -> restTemplate);
   }
 
   @SneakyThrows
@@ -70,6 +72,36 @@ public class RestIdentityServiceClientTest {
     ResourceIdentity b = a.toBuilder().identifier("b").build();
     ResourceIdentity c = a.toBuilder().identifier("c").build();
     return Arrays.asList(a, b, c);
+  }
+
+  @SneakyThrows
+  @Test()
+  public void lookupErrorHandlerAllowsOk() {
+    ClientHttpResponse r = mock(ClientHttpResponse.class);
+    when(r.getStatusCode()).thenReturn(HttpStatus.OK);
+    LookupErrorHandler h = new LookupErrorHandler("x");
+    assertThat(h.hasError(r)).isFalse();
+    h.handleError(r);
+  }
+
+  @SneakyThrows
+  @Test(expected = UnknownIdentity.class)
+  public void lookupErrorHandlerHandlesNotFound() {
+    ClientHttpResponse r = mock(ClientHttpResponse.class);
+    when(r.getStatusCode()).thenReturn(HttpStatus.NOT_FOUND);
+    LookupErrorHandler h = new LookupErrorHandler("x");
+    assertThat(h.hasError(r)).isTrue();
+    h.handleError(r);
+  }
+
+  @SneakyThrows
+  @Test(expected = LookupFailed.class)
+  public void lookupErrorHandlerHandlesNotOk() {
+    ClientHttpResponse r = mock(ClientHttpResponse.class);
+    when(r.getStatusCode()).thenReturn(HttpStatus.INTERNAL_SERVER_ERROR);
+    LookupErrorHandler h = new LookupErrorHandler("x");
+    assertThat(h.hasError(r)).isTrue();
+    h.handleError(r);
   }
 
   @Test
@@ -115,6 +147,26 @@ public class RestIdentityServiceClientTest {
             Mockito.any(HttpEntity.class),
             Mockito.any(ParameterizedTypeReference.class)))
         .thenReturn(new ResponseEntity<>(body, status));
+  }
+
+  @SneakyThrows
+  @Test()
+  public void registerErrorHandlerAllowsOk() {
+    ClientHttpResponse r = mock(ClientHttpResponse.class);
+    when(r.getStatusCode()).thenReturn(HttpStatus.OK);
+    RegisterErrorHandler h = new RegisterErrorHandler();
+    assertThat(h.hasError(r)).isFalse();
+    h.handleError(r);
+  }
+
+  @SneakyThrows
+  @Test(expected = RegistrationFailed.class)
+  public void registerErrorHandlerHandlesNotOk() {
+    ClientHttpResponse r = mock(ClientHttpResponse.class);
+    when(r.getStatusCode()).thenReturn(HttpStatus.INTERNAL_SERVER_ERROR);
+    RegisterErrorHandler h = new RegisterErrorHandler();
+    assertThat(h.hasError(r)).isTrue();
+    h.handleError(r);
   }
 
   @Test
