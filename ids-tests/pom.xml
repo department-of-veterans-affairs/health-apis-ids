@@ -4,11 +4,11 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>test-starter</artifactId>
-    <version>3.0.7</version>
+    <version>3.0.8</version>
     <relativePath/>
   </parent>
   <artifactId>ids-tests</artifactId>
-  <version>2.0.1-SNAPSHOT</version>
+  <version>2.0.1</version>
   <packaging>jar</packaging>
   <properties>
     <groups>gov.va.api.health.sentinel.categories.Local</groups>
