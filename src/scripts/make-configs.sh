@@ -59,24 +59,7 @@ makeConfig() {
   local target="$REPO/$project/config/application-${profile}.properties"
   [ -f "$target" ] && mv -v $target $target.$MARKER
   grep -E '(.*= *unset)' "$REPO/$project/src/main/resources/application.properties" \
-    | grep -Ev '(^server\.ssl\.|^ssl\.)' \
     > "$target"
-cat >> "$target" <<EOF
-# Server SSL
-server.ssl.key-store=file:target/certs/system/DVP-DVP-NONPROD.jks
-server.ssl.key-alias=internal-sys-dev
-server.ssl.key-store-password=$KEYSTORE_PASSWORD
-server.ssl.trust-store=file:target/certs/system/DVP-NONPROD-truststore.jks
-server.ssl.trust-store-password=$KEYSTORE_PASSWORD
-server.ssl.client-auth=want
-# Client SSL
-ssl.key-store=file:target/certs/system/DVP-DVP-NONPROD.jks
-ssl.key-store-password=$KEYSTORE_PASSWORD
-ssl.client-key-password=$KEYSTORE_PASSWORD
-ssl.use-trust-store=true
-ssl.trust-store=file:target/certs/system/DVP-NONPROD-truststore.jks
-ssl.trust-store-password=$KEYSTORE_PASSWORD
-EOF
 }
 
 configValue() {
@@ -100,19 +83,8 @@ checkForUnsetValues() {
   [ $? == 0 ] && rm -v $target.$MARKER
 }
 
-makeTestsSecrets() {
-cat > $REPO/ids-tests/config/secrets.properties <<EOF
-server.ssl.key-store-password=$KEYSTORE_PASSWORD
-ssl.client-key-password=$KEYSTORE_PASSWORD
-ssl.key-store-password=$KEYSTORE_PASSWORD
-ssl.trust-store-password=$KEYSTORE_PASSWORD
-EOF
-}
-
 makeConfig ids $PROFILE
 configValue ids $PROFILE spring.datasource.url "$IDS_DB_URL"
 configValue ids $PROFILE spring.datasource.username "$IDS_DB_USER"
 configValue ids $PROFILE spring.datasource.password "$IDS_DB_PASSWORD"
 checkForUnsetValues ids $PROFILE
-
-makeTestsSecrets

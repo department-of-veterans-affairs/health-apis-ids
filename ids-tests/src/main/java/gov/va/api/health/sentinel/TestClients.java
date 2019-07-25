@@ -23,7 +23,7 @@ public final class TestClients {
     switch (Environment.get()) {
       case LOCAL:
         return ServiceDefinition.builder()
-            .url(SentinelProperties.optionUrl("ids", "https://localhost"))
+            .url(SentinelProperties.optionUrl("ids", "http://localhost"))
             .port(8089)
             .accessToken(() -> Optional.empty())
             .apiPath(SentinelProperties.optionApiPath("ids", "/api/"))
