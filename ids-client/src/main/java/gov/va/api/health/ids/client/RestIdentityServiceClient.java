@@ -91,10 +91,6 @@ public final class RestIdentityServiceClient implements IdentityService {
     if (baseRestTemplate.getUriTemplateHandler() != null) {
       copy.setUriTemplateHandler(baseRestTemplate.getUriTemplateHandler());
     }
-    if (baseRestTemplate.getInterceptors() != null
-        && !baseRestTemplate.getInterceptors().isEmpty()) {
-      copy.setInterceptors(baseRestTemplate.getInterceptors());
-    }
     if (baseRestTemplate.getRequestFactory() != null) {
       copy.setRequestFactory(baseRestTemplate.getRequestFactory());
     }
