@@ -21,8 +21,22 @@ public class RestIdentityServiceClientConfig {
   @Value("${identityservice.url}")
   private final String url;
 
-  /** Create a new IdentityService that uses REST for communication. */
+  @Value("${identityservice.encodingKey}")
+  private final String encodingKey;
+
+  /**
+   * Create a new IdentityService that uses encoded IDs and will fallback REST for communication for
+   * legacy IDs.
+   */
   @Bean
+  public IdentityService encodingIdentityServiceClient() {
+    return EncodingIdentityServiceClient.builder()
+        .encoder(EncryptingIdEncoder.builder().password(encodingKey).build())
+        .delegate(restIdentityServiceClient())
+        .build();
+  }
+
+  /** Create a new IdentityService that uses REST for communication. */
   public IdentityService restIdentityServiceClient() {
     return RestIdentityServiceClient.builder()
         .baseRestTemplate(restTemplate)

@@ -13,7 +13,8 @@ public class RestIdentityServiceClientConfigTest {
   public void restIdentityServiceClient() {
     RestTemplate rt = Mockito.mock(RestTemplate.class);
     IdentityService ids =
-        new RestIdentityServiceClientConfig(rt, "http://example.com").restIdentityServiceClient();
+        new RestIdentityServiceClientConfig(rt, "http://example.com", "secret-password")
+            .restIdentityServiceClient();
     assertThat(ids).isNotNull();
   }
 }

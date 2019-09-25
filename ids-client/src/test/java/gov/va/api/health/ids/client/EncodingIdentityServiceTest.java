@@ -1,7 +1,6 @@
 package gov.va.api.health.ids.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.ids.api.IdentityService;
@@ -55,17 +54,6 @@ public class EncodingIdentityServiceTest {
      */
     List<ResourceIdentity> actual = ids.lookup("1011537977V693883");
     assertThat(actual).isEqualTo(List.of(patient("1011537977V693883")));
-  }
-
-  @Test
-  public void idsCanOnlyBeDecodedWithMatchingKey() {
-    /*
-     * Applications providing IDs will be configured with an encryption key, client do not need the
-     * key. E.g. data-query will be configured with it’s own ID encryption key, consumers of
-     * data-query do not need the key.
-     */
-    fail();
-    // test two instances with different keys
   }
 
   @Test
@@ -158,8 +146,9 @@ public class EncodingIdentityServiceTest {
     Predicate<String> publicId;
 
     @Builder(
-        builderMethodName = "withEncodedId",
-        builderClassName = "ExpectedRegistrationBuilderWithEncodedId")
+      builderMethodName = "withEncodedId",
+      builderClassName = "ExpectedRegistrationBuilderWithEncodedId"
+    )
     public ExpectedRegistration(String system, String resource, String privateId) {
       this.system = system;
       this.resource = resource;
