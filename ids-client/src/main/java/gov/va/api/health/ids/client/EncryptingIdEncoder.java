@@ -152,14 +152,14 @@ public class EncryptingIdEncoder implements IdEncoder {
 
     private final ThreadLocal<Cipher> encryptors = new ThreadLocal<>();
 
-    private final ThreadLocal<Cipher> decyryptors = new ThreadLocal<>();
+    private final ThreadLocal<Cipher> decryptors = new ThreadLocal<>();
 
     Cipher decryptor() {
-      return get(encryptors, Cipher.DECRYPT_MODE);
+      return get(decryptors, Cipher.DECRYPT_MODE);
     }
 
     Cipher encryptor() {
-      return get(decyryptors, Cipher.ENCRYPT_MODE);
+      return get(encryptors, Cipher.ENCRYPT_MODE);
     }
 
     @SneakyThrows

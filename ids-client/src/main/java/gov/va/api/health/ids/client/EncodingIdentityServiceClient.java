@@ -111,8 +111,8 @@ public class EncodingIdentityServiceClient implements IdentityService {
   }
 
   /**
-   * This handler is used deal with IDs that do not match a known format. This should be the last
-   * handler in the list of handlers.
+   * This handler is used deal with IDs that match the 10V6 patient ICN pattern. ICNs should not be
+   * encoded or decoded.
    */
   private static class PatientIcnLookupHandler implements LookupHandler {
 
