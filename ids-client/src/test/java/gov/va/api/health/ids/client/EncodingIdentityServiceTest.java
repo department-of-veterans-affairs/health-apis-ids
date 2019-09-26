@@ -133,7 +133,8 @@ public class EncodingIdentityServiceTest {
   @Test
   public void v2IdsAreDecoded() {
     /* For lookup, V2 ID management will detect V2 IDs and decode accordingly. */
-    String encoded = "i2:" + new FugaziEncoder().encode(anything("abc"));
+    String encoded =
+        EncodingIdentityServiceClient.V2_PREFIX + new FugaziEncoder().encode(anything("abc"));
     List<ResourceIdentity> actual = ids.lookup(encoded);
     assertThat(actual).containsExactly(anything("abc"));
   }

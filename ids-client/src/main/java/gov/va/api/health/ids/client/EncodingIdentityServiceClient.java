@@ -34,7 +34,7 @@ public class EncodingIdentityServiceClient implements IdentityService {
    * This prefix is the starting marker of V2 ids. IDs that start with this string will be passed to
    * the encoder for decoding. All ids generated during registration will have this prefix.
    */
-  public static final String V2_PREFIX = "i2:";
+  public static final String V2_PREFIX = "I2-";
 
   /**
    * UUID type IDs will be passed to this delegate for lookups. It will not be used for

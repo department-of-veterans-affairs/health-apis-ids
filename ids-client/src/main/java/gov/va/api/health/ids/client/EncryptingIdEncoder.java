@@ -6,7 +6,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import java.security.spec.KeySpec;
 import java.util.Arrays;
-import java.util.Base64;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
@@ -15,6 +14,7 @@ import javax.crypto.spec.SecretKeySpec;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.SneakyThrows;
+import org.apache.commons.codec.binary.Base32;
 
 /**
  * This ID encoder uses encryption as a means for grouping and obscuring data. It is not meant to
@@ -62,7 +62,7 @@ public class EncryptingIdEncoder implements IdEncoder {
   @Override
   @SneakyThrows
   public ResourceIdentity decode(String encoded) {
-    byte[] encryptedBytes = Base64.getUrlDecoder().decode(encoded.getBytes(UTF_8));
+    byte[] encryptedBytes = UrlSafeEncoding.decode(encoded);
     byte[] decryptedBytes = ciphers.decryptor().doFinal(encryptedBytes);
     String delimitedIdentity = new String(decryptedBytes, UTF_8);
     return DelimitedRepresentation.from(delimitedIdentity);
@@ -74,7 +74,7 @@ public class EncryptingIdEncoder implements IdEncoder {
     String delimitedIdentity = DelimitedRepresentation.to(resourceIdentity);
     byte[] decryptedBytes = delimitedIdentity.getBytes(UTF_8);
     byte[] encryptedBytes = ciphers.encryptor().doFinal(decryptedBytes);
-    return new String(Base64.getUrlEncoder().encode(encryptedBytes), UTF_8);
+    return UrlSafeEncoding.encode(encryptedBytes);
   }
 
   /**
@@ -140,6 +140,32 @@ public class EncryptingIdEncoder implements IdEncoder {
 
     UnknownRepresentation(String s) {
       super(s);
+    }
+  }
+
+  /** This class encapsulates the encoding algorithm. */
+  private static class UrlSafeEncoding {
+
+    /**
+     * We'll use Base 32 (https://www.ietf.org/rfc/rfc4648.txt) to encode. This uses characters A-Z
+     * and numbers 2-7, making this URL safe and _reasonable_ nice looking. We'll also pad with 0
+     * instead of the standard = character, to keep the ID looking nice, e.g.
+     *
+     * <pre>
+     * I2-7VES7OYMFUBMJCV4OO5S6JNDSJMJL2IOZOJQK45OHMKPO2ZWWZUA0000
+     * </pre>
+     *
+     * The downside is that these IDs are long, ~60 characters. However, the base 64 versions are
+     * around ~48 characters and are much more _ugly_.
+     */
+    private static Base32 BASE = new Base32(false, (byte) '0');
+
+    static byte[] decode(String encoded) {
+      return BASE.decode(encoded.getBytes(UTF_8));
+    }
+
+    static String encode(byte[] unencodedBytes) {
+      return new String(BASE.encode(unencodedBytes), UTF_8);
     }
   }
 

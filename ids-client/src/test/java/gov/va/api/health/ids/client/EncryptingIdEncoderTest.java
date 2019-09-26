@@ -80,6 +80,7 @@ public class EncryptingIdEncoderTest {
             .build();
     String encoded1 = EncryptingIdEncoder.builder().password("magic-ids").build().encode(original);
     String encoded2 = EncryptingIdEncoder.builder().password("magic-ids").build().encode(original);
+    System.out.println(encoded1);
 
     assertThat(encoded1).isEqualTo(encoded2);
   }
