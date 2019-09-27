@@ -4,7 +4,10 @@ import static gov.va.api.health.ids.client.EncodingIdentityServiceClient.V2_PREF
 
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.ids.client.ObfuscatingIdEncoder.Codebook;
+import gov.va.api.health.ids.client.ObfuscatingIdEncoder.CodebookSupplier;
 import java.util.List;
+import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 import lombok.NoArgsConstructor;
 
@@ -54,6 +57,17 @@ public class Tools {
   }
 
   private ObfuscatingIdEncoder encoder() {
-    return ObfuscatingIdEncoder.builder().codebook(Codebook.builder().build()).build();
+    Optional<CodebookSupplier> codebooks = ServiceLoader.load(CodebookSupplier.class).findFirst();
+    return ObfuscatingIdEncoder.builder()
+        .codebook(codebooks.orElseGet(() -> new EmptyCodebookSupplier()).get())
+        .build();
+  }
+
+  private static class EmptyCodebookSupplier implements CodebookSupplier {
+
+    @Override
+    public Codebook get() {
+      return Codebook.builder().build();
+    }
   }
 }

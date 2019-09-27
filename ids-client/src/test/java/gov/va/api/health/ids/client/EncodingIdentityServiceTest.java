@@ -147,8 +147,9 @@ public class EncodingIdentityServiceTest {
     Predicate<String> publicId;
 
     @Builder(
-        builderMethodName = "withEncodedId",
-        builderClassName = "ExpectedRegistrationBuilderWithEncodedId")
+      builderMethodName = "withEncodedId",
+      builderClassName = "ExpectedRegistrationBuilderWithEncodedId"
+    )
     public ExpectedRegistration(String system, String resource, String privateId) {
       this.system = system;
       this.resource = resource;

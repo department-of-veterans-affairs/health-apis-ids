@@ -7,6 +7,7 @@ import gov.va.api.health.ids.api.ResourceIdentity;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -52,6 +53,12 @@ public class ObfuscatingIdEncoder implements IdEncoder {
     byte[] decryptedBytes = delimitedIdentity.getBytes(UTF_8);
     return UrlSafeEncoding.encode(decryptedBytes);
   }
+
+  /**
+   * Interface used to support tools. This allows other consumers to plugin their own Codebooks to
+   * the ids-client-tools application.
+   */
+  public interface CodebookSupplier extends Supplier<Codebook> {}
 
   /**
    * This class provides ID shortening mappings. It can be used to perform _exact_ match shortening.
