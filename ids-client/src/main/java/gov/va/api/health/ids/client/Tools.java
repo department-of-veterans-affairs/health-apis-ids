@@ -1,9 +1,9 @@
 package gov.va.api.health.ids.client;
 
 import static gov.va.api.health.ids.client.EncodingIdentityServiceClient.V2_PREFIX;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import gov.va.api.health.ids.api.ResourceIdentity;
+import gov.va.api.health.ids.client.ObfuscatingIdEncoder.Codebook;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.NoArgsConstructor;
@@ -15,6 +15,7 @@ public class Tools {
     return System.getProperty("app.name", "ids-client-tools");
   }
 
+  /** Tool main called from command line. */
   public static void main(String[] args) {
     switch (args.length) {
       case 1:
@@ -30,13 +31,7 @@ public class Tools {
 
   private static void usage() {
     System.out.println(
-        List.of(
-                "Usage:",
-                appName() + " <encoded-id>",
-                appName() + " <system> <resource> id",
-                "",
-                "System properties:",
-                "-Dpassword=<password>")
+        List.of("Usage:", appName() + " <encoded-id>", appName() + " <system> <resource> id")
             .stream()
             .collect(Collectors.joining("\n")));
   }
@@ -58,26 +53,7 @@ public class Tools {
                         .build()));
   }
 
-  private EncryptingIdEncoder encoder() {
-    return EncryptingIdEncoder.builder().password(password()).build();
-  }
-
-  private String password() {
-    return property("password");
-  }
-
-  private String property(String name) {
-    String value = System.getProperty(name);
-    if (isBlank(value)) {
-      throw new MissingProperty(name);
-    }
-    return value;
-  }
-
-  private static final class MissingProperty extends RuntimeException {
-
-    public MissingProperty(String property) {
-      super(property + " (Specifiy with -D" + property + "=<value>)");
-    }
+  private ObfuscatingIdEncoder encoder() {
+    return ObfuscatingIdEncoder.builder().codebook(Codebook.builder().build()).build();
   }
 }

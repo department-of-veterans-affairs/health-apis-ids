@@ -1,15 +1,3 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FindBugsFilter>
-  <!--
-    The EncryptingIdEncoder is not meant to provide strong encryption for any sensitive
-    information. It is merely a tool to provide encoding/decoding of a tuple of information
-    that can be safely used in URLs.
-  -->
-  <Match>
-    <Class name="gov.va.api.health.ids.client.EncryptingIdEncoder$CipherPool"/>
-    <Or>
-      <Bug pattern="CIPHER_INTEGRITY"/>
-      <Bug pattern="STATIC_IV"/>
-    </Or>
-  </Match>
 </FindBugsFilter>
