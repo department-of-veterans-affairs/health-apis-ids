@@ -96,7 +96,7 @@ public class EncodingIdentityServiceTest {
   public void v2IdsAreAlwaysReturnedExceptForPatientsDuringRegistration() {
     /*
      * V2 IDs take the format described below, e.g.
-     * i2:n%2BtRVIJFNsJfd1FXLD0U8s9n3Fen5MLCa8RztnXC9mY%3D
+     * I2-n%2BtRVIJFNsJfd1FXLD0U8s9n3Fen5MLCa8RztnXC9mY%3D
      *
      * A simple encryption algorithm such as AES-128 will be used to keep ID sizes from becoming
      * excessively large
@@ -147,9 +147,8 @@ public class EncodingIdentityServiceTest {
     Predicate<String> publicId;
 
     @Builder(
-      builderMethodName = "withEncodedId",
-      builderClassName = "ExpectedRegistrationBuilderWithEncodedId"
-    )
+        builderMethodName = "withEncodedId",
+        builderClassName = "ExpectedRegistrationBuilderWithEncodedId")
     public ExpectedRegistration(String system, String resource, String privateId) {
       this.system = system;
       this.resource = resource;

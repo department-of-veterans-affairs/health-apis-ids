@@ -18,7 +18,7 @@ import lombok.Getter;
  *
  * <ul>
  *   <li>IDs are always registered using the V2 mechanism.
- *   <li>V2 IDs are prefixed with 'i2:'
+ *   <li>V2 IDs are prefixed with 'I2-'
  *   <li>Patient ICN are never encoded and are recognized by the 10V6 pattern: ten digits, followed
  *       by a literal 'V', followed by 6 digits. Patients are always registered with the system
  *       'MVI' and the public 'uuid' will be ICN.
@@ -63,8 +63,7 @@ public class EncodingIdentityServiceClient implements IdentityService {
   @Override
   public List<ResourceIdentity> lookup(String id) {
     LookupHandler handler =
-        lookupHandlers()
-            .stream()
+        lookupHandlers().stream()
             .filter(h -> h.accept(id))
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("Failed to find lookup handler: " + id));
@@ -79,8 +78,7 @@ public class EncodingIdentityServiceClient implements IdentityService {
   /** Register a single identity. */
   private Registration register(ResourceIdentity identity) {
     RegistrationHandler handler =
-        registrationHandlers()
-            .stream()
+        registrationHandlers().stream()
             .filter(h -> h.accept(identity))
             .findFirst()
             .orElseThrow(
