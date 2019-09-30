@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+
+BASE_DIR=$(dirname $(readlink -f $0))
+
+
+findToolsJar() {
+  IDS_TOOLS_JAR=$(find $BASE_DIR/target -name "ids-client-*-tools.jar")
+}
+
+
+findToolsJar
+[ -z "$IDS_TOOLS_JAR" ] && mvn clean install -P"!standard" -DskipTests -f $BASE_DIR
+findToolsJar
+[ -z "$IDS_TOOLS_JAR" ] && echo "Tools jar still missing... giving up" && exit 1
+
+
+
+
+
+[ -n "$JAVA_HOME" ] && JAVA_EXE="$JAVA_HOME/bin/java" || JAVA_EXE=java
+
+ARGS=$(getopt -n $(basename ${0}) \
+  -l "debug,help,mapping:,password:" \
+    -o "hm:p:" -- "$@")
+[ $? != 0 ] && usage
+eval set -- "$ARGS"
+while true
+do
+  case "$1" in
+    --debug) set -x;;
+    -p|--password) export IDS_PASSWORD="$2";;
+    -m|--mapping) export IDS_MAPPING_JAR="$2";;
+    -h|--help) usage "halp! what this do?";;
+    --) shift;break;;
+  esac
+  shift;
+done
+
+
+[ -z "$IDS_PASSWORD" ] && echo "Password not specified" && exit 1
+
+case $(uname) in
+  MING*|MSYS*) PATH_SEPARATOR=";";;
+  *) PATH_SEPARATOR=":";;
+esac
+
+
+$JAVA_EXE \
+  -Dpassword="$IDS_PASSWORD" \
+  -cp "${IDS_TOOLS_JAR}${PATH_SEPARATOR}${IDS_MAPPING_JAR}" \
+  gov.va.api.health.ids.client.Tools \
+  $@
+

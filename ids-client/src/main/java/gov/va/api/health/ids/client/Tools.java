@@ -1,14 +1,14 @@
 package gov.va.api.health.ids.client;
 
 import static gov.va.api.health.ids.client.EncodingIdentityServiceClient.V2_PREFIX;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import gov.va.api.health.ids.api.ResourceIdentity;
-import gov.va.api.health.ids.client.ObfuscatingIdEncoder.Codebook;
-import gov.va.api.health.ids.client.ObfuscatingIdEncoder.CodebookSupplier;
+import gov.va.api.health.ids.client.EncryptingIdEncoder.Codebook;
+import gov.va.api.health.ids.client.EncryptingIdEncoder.CodebookSupplier;
 import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
-import java.util.stream.Collectors;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(staticName = "tools")
@@ -34,9 +34,14 @@ public class Tools {
 
   private static void usage() {
     System.out.println(
-        List.of("Usage:", appName() + " <encoded-id>", appName() + " <system> <resource> id")
-            .stream()
-            .collect(Collectors.joining("\n")));
+        String.join(
+            "\n",
+            List.of(
+                "Usage:",
+                appName() + " <encoded-id>",
+                appName() + " <system> <resource> id",
+                "System properties:",
+                "-Dpassword=<password>")));
   }
 
   private void decode(String id) {
@@ -56,11 +61,24 @@ public class Tools {
                         .build()));
   }
 
-  private ObfuscatingIdEncoder encoder() {
+  private EncryptingIdEncoder encoder() {
     Optional<CodebookSupplier> codebooks = ServiceLoader.load(CodebookSupplier.class).findFirst();
-    return ObfuscatingIdEncoder.builder()
-        .codebook(codebooks.orElseGet(() -> new EmptyCodebookSupplier()).get())
+    return EncryptingIdEncoder.builder()
+        .password(password())
+        .codebook(codebooks.orElseGet(EmptyCodebookSupplier::new).get())
         .build();
+  }
+
+  private String password() {
+    return property("password");
+  }
+
+  private String property(@SuppressWarnings("SameParameterValue") String name) {
+    String value = System.getProperty(name);
+    if (isBlank(value)) {
+      throw new MissingProperty(name);
+    }
+    return value;
   }
 
   private static class EmptyCodebookSupplier implements CodebookSupplier {
@@ -68,6 +86,12 @@ public class Tools {
     @Override
     public Codebook get() {
       return Codebook.builder().build();
+    }
+  }
+
+  private static final class MissingProperty extends RuntimeException {
+    MissingProperty(String property) {
+      super(property + " (Specifiy with -D" + property + "=<value>)");
     }
   }
 }

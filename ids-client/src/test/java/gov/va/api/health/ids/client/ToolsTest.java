@@ -10,8 +10,17 @@ public class ToolsTest {
 
   @Test
   public void encodeAndDecode() {
-    Tools.main(args());
-    Tools.main(args("CDW", "MEDICATION", "123456890"));
-    Tools.main(args("I2-INCFOOSNIVCESQ2BKREU6TR2GEZDGNBVGY4DSMA0"));
+    String previous = System.setProperty("password", "secret");
+    try {
+      Tools.main(args());
+      Tools.main(args("CDW", "MEDICATION", "123456890"));
+      Tools.main(args("I2-ZB3TEH5Q3BLZ4LVI7BI3T56FOPHDELLNGVS5SAJOBX6FORFPIIKA0000"));
+    } finally {
+      if (previous == null) {
+        System.clearProperty("password");
+      } else {
+        System.setProperty("password", previous);
+      }
+    }
   }
 }

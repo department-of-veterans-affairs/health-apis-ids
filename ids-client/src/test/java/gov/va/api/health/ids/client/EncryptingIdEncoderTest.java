@@ -3,14 +3,13 @@ package gov.va.api.health.ids.client;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.ids.api.ResourceIdentity;
-import gov.va.api.health.ids.client.ObfuscatingIdEncoder.Codebook;
-import gov.va.api.health.ids.client.ObfuscatingIdEncoder.Codebook.Mapping;
-import gov.va.api.health.ids.client.ObfuscatingIdEncoder.IncompleteResourceIdentity;
-import gov.va.api.health.ids.client.ObfuscatingIdEncoder.UnknownRepresentation;
+import gov.va.api.health.ids.client.EncryptingIdEncoder.Codebook;
+import gov.va.api.health.ids.client.EncryptingIdEncoder.Codebook.Mapping;
+import gov.va.api.health.ids.client.EncryptingIdEncoder.IncompleteResourceIdentity;
+import gov.va.api.health.ids.client.EncryptingIdEncoder.UnknownRepresentation;
 import org.junit.Test;
 
-public class ObfuscatingIdEncoderTest {
-
+public class EncryptingIdEncoderTest {
   @Test
   public void codebookShortens() {
     Codebook cb =
@@ -118,7 +117,7 @@ public class ObfuscatingIdEncoderTest {
     encoder().delimitedRepresentation().from(" : : ");
   }
 
-  public ObfuscatingIdEncoder encoder() {
+  public EncryptingIdEncoder encoder() {
     Codebook codebook =
         Codebook.builder()
             .map(Mapping.of("WHATEVER", "W"))
@@ -126,7 +125,7 @@ public class ObfuscatingIdEncoderTest {
             .map(Mapping.of("CDW", "C"))
             .map(Mapping.of("MEDICATION_STATEMENT", "S"))
             .build();
-    return ObfuscatingIdEncoder.builder().codebook(codebook).build();
+    return EncryptingIdEncoder.builder().password("magic-ids").codebook(codebook).build();
   }
 
   @Test
@@ -139,19 +138,22 @@ public class ObfuscatingIdEncoderTest {
             .build();
     String encoded1 = encoder().encode(original);
     String encoded2 = encoder().encode(original);
+    System.out.println(encoded1);
+
     assertThat(encoded1).isEqualTo(encoded2);
   }
 
   @Test
   public void roundTrip() {
-    ObfuscatingIdEncoder encoder = encoder();
+    EncryptingIdEncoder encoder = encoder();
     ResourceIdentity original =
         ResourceIdentity.builder()
-            .system("CDW")
-            .resource("MEDICATION_STATEMENT")
-            .identifier("ABCDEFGHI:1234567890")
+            .system("WHATEVER")
+            .resource("ANYTHING")
+            .identifier("ABC:123")
             .build();
     String encoded = encoder.encode(original);
+    System.out.println(encoded);
     ResourceIdentity decoded = encoder.decode(encoded);
     assertThat(decoded).isEqualTo(original);
   }
