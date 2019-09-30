@@ -28,7 +28,7 @@ public class RestIdentityServiceClientConfig {
   @Value("${identityservice.url}")
   private final String url;
 
-  @Value("${identityservice.url:disabled}")
+  @Value("${identityservice.encodingKey:disabled}")
   private final String encodingKey;
 
   private RestIdentityServiceClient createRestIdentityServiceClient() {
