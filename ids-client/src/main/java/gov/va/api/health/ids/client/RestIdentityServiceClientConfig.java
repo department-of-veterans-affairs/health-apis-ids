@@ -52,6 +52,7 @@ public class RestIdentityServiceClientConfig {
   @ConditionalOnBean(Codebook.class)
   public IdentityService encodingIdentityServiceClient(@Autowired Codebook codebook) {
     if (isBlank(encodingKey) || "disabled".equals(encodingKey)) {
+      log.info("Encoding Identity Service has been disabled.");
       return createRestIdentityServiceClient();
     }
     log.info("Using encoding Identity Service");

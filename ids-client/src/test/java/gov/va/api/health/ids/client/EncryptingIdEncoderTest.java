@@ -7,9 +7,49 @@ import gov.va.api.health.ids.client.EncryptingIdEncoder.Codebook;
 import gov.va.api.health.ids.client.EncryptingIdEncoder.Codebook.Mapping;
 import gov.va.api.health.ids.client.EncryptingIdEncoder.IncompleteResourceIdentity;
 import gov.va.api.health.ids.client.EncryptingIdEncoder.UnknownRepresentation;
+import gov.va.api.health.ids.client.IdEncoder.BadId;
 import org.junit.Test;
 
 public class EncryptingIdEncoderTest {
+  @Test(expected = BadId.class)
+  public void badIdIsThrownForGarbageIdBaseValue() {
+    EncryptingIdEncoder encoder = encoder();
+    ResourceIdentity original =
+        ResourceIdentity.builder()
+            .system("WHATEVER")
+            .resource("ANYTHING")
+            .identifier("ABC:123")
+            .build();
+    String encoded = encoder.encode(original);
+    encoder.decode(encoded.replaceAll("[A-M]", "1"));
+  }
+
+  @Test(expected = BadId.class)
+  public void badIdIsThrownForGarbageIdContent() {
+    EncryptingIdEncoder encoder = encoder();
+    ResourceIdentity original =
+        ResourceIdentity.builder()
+            .system("WHATEVER")
+            .resource("ANYTHING")
+            .identifier("ABC:123")
+            .build();
+    String encoded = encoder.encode(original);
+    encoder.decode(encoded.replaceAll("[A-M]", "X"));
+  }
+
+  @Test(expected = BadId.class)
+  public void badIdIsThrownForGarbageIdSize() {
+    EncryptingIdEncoder encoder = encoder();
+    ResourceIdentity original =
+        ResourceIdentity.builder()
+            .system("WHATEVER")
+            .resource("ANYTHING")
+            .identifier("ABC:123")
+            .build();
+    String encoded = encoder.encode(original);
+    encoder.decode(encoded.substring(0, encoded.length() - 7));
+  }
+
   @Test
   public void codebookShortens() {
     Codebook cb =
@@ -138,8 +178,6 @@ public class EncryptingIdEncoderTest {
             .build();
     String encoded1 = encoder().encode(original);
     String encoded2 = encoder().encode(original);
-    System.out.println(encoded1);
-
     assertThat(encoded1).isEqualTo(encoded2);
   }
 
@@ -153,7 +191,6 @@ public class EncryptingIdEncoderTest {
             .identifier("ABC:123")
             .build();
     String encoded = encoder.encode(original);
-    System.out.println(encoded);
     ResourceIdentity decoded = encoder.decode(encoded);
     assertThat(decoded).isEqualTo(original);
   }

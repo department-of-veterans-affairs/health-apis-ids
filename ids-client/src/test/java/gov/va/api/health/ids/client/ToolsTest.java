@@ -23,4 +23,9 @@ public class ToolsTest {
       }
     }
   }
+
+  @Test(expected = Tools.MissingProperty.class)
+  public void missingPropertyIsThrown() {
+    Tools.main(args("CDW", "MEDICATION", "123456890"));
+  }
 }

@@ -10,7 +10,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
@@ -77,21 +79,27 @@ public class EncryptingIdEncoder implements IdEncoder {
   }
 
   @Override
-  @SneakyThrows
   public ResourceIdentity decode(String encoded) {
-    byte[] encryptedBytes = UrlSafeEncoding.decode(encoded);
-    byte[] decryptedBytes = ciphers.decryptor().doFinal(encryptedBytes);
-    String delimitedIdentity = new String(decryptedBytes, UTF_8);
-    return delimitedRepresentation.from(delimitedIdentity);
+    try {
+      byte[] encryptedBytes = UrlSafeEncoding.decode(encoded);
+      byte[] decryptedBytes = ciphers.decryptor().doFinal(encryptedBytes);
+      String delimitedIdentity = new String(decryptedBytes, UTF_8);
+      return delimitedRepresentation.from(delimitedIdentity);
+    } catch (IllegalStateException | IllegalBlockSizeException | BadPaddingException e) {
+      throw new BadId(encoded, e);
+    }
   }
 
   @Override
-  @SneakyThrows
   public String encode(ResourceIdentity resourceIdentity) {
-    String delimitedIdentity = delimitedRepresentation.to(resourceIdentity);
-    byte[] decryptedBytes = delimitedIdentity.getBytes(UTF_8);
-    byte[] encryptedBytes = ciphers.encryptor().doFinal(decryptedBytes);
-    return UrlSafeEncoding.encode(encryptedBytes);
+    try {
+      String delimitedIdentity = delimitedRepresentation.to(resourceIdentity);
+      byte[] decryptedBytes = delimitedIdentity.getBytes(UTF_8);
+      byte[] encryptedBytes = ciphers.encryptor().doFinal(decryptedBytes);
+      return UrlSafeEncoding.encode(encryptedBytes);
+    } catch (IllegalStateException | IllegalBlockSizeException | BadPaddingException e) {
+      throw new EncodingFailed(resourceIdentity.toString(), e);
+    }
   }
 
   /**
@@ -182,7 +190,7 @@ public class EncryptingIdEncoder implements IdEncoder {
      * The downside is that these IDs are long, ~60 characters. However, the base 64 versions are
      * around ~48 characters and are much more _ugly_.
      */
-    private static Base32 BASE = new Base32(false, (byte) '0');
+    private static Base32 BASE = new Base32(1024, "".getBytes(UTF_8), false, (byte) '0');
 
     static byte[] decode(String encoded) {
       return BASE.decode(encoded.getBytes(UTF_8));

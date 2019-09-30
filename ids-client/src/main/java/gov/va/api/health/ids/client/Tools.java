@@ -89,7 +89,7 @@ public class Tools {
     }
   }
 
-  private static final class MissingProperty extends RuntimeException {
+  static final class MissingProperty extends RuntimeException {
     MissingProperty(String property) {
       super(property + " (Specifiy with -D" + property + "=<value>)");
     }
