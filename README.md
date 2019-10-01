@@ -48,6 +48,31 @@ GIVEN a unregistered public ID,
 WHEN a lookup request is made,
 THEN a 404 response is returned.
 ```
+----
+# IDS Client
+The `ids-client` module provides a client library capable of two things:
+1. Interacting with a rest Identity Service
+2. Using local encoding to create encapsulated Ids.
+
+By default, Spring applications will leverage the Rest client. However, if they provide
+a `Codebook` bean, then an encoding client (with rest fallback) will be used.
+
+### Encoding Identity Service client
+Encoding IDS client works with "Version 2" IDs. These are not UUIDs but rather string matching the
+following pattern: `I2-[A-Z2-7]+0*`
+Lookup Behavior
+- UUIDs will be forwarded to the Rest service
+- Patient ICNs matching the 10V6 pattern (10 numbers, a literal 'V', 6 numbers) will be locally
+  resolved to `MVI PATIENT <icn>`
+- Version 2 IDs are decoded locally.
+
+Registration
+- Only Version 2 IDs are returned as the _uuid_.
+- Patients are always registered to `MVI PATIENT <icn>` and their _uuid_ will be the `<icn>`
+
+To help keep IDs short, a `Codebook` is used to map long System and Resource names to short
+abbreviations. A `Codebook` must be provided in the Spring context to enable this client. An empty
+`Codebook` is allowed. 
 
 ----
 

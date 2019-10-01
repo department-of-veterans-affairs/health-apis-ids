@@ -8,10 +8,10 @@
     <relativePath/>
   </parent>
   <artifactId>ids-client</artifactId>
-  <version>2.0.4-SNAPSHOT</version>
+  <version>2.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <jacoco.coverage>0.90</jacoco.coverage>
+    <jacoco.coverage>0.95</jacoco.coverage>
   </properties>
   <dependencies>
     <dependency>
@@ -25,4 +25,51 @@
       <version>2.0.0</version>
     </dependency>
   </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <!-- Disable the default shade execution configured in the spring parent pluginManagement section. -->
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <phase>none</phase>
+          </execution>
+          <execution>
+            <id>tools</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <finalName>${project.artifactId}-${project.version}-tools</finalName>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>gov.va.api.health.ids.client.Tools</mainClass>
+                </transformer>
+              </transformers>
+              <minimizeJar>true</minimizeJar>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <artifactSet>
+                <excludes>
+                  <exclude>org.springframework.boot:*</exclude>
+                  <exclude>org.springframework:*</exclude>
+                  <exclude>io.swagger.core.v3:*</exclude>
+                  <exclude>io.micrometer:*</exclude>
+                  <exclude>io.prometheus:*</exclude>
+                  <exclude>org.hdrhistogram:*</exclude>
+                  <exclude>org.latencyutils:*</exclude>
+                  <exclude>org.apache.tomcat.embed:*</exclude>
+                </excludes>
+              </artifactSet>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
