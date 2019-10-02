@@ -31,6 +31,9 @@ public class RestIdentityServiceClientConfig {
   @Value("${identityservice.encodingKey:disabled}")
   private final String encodingKey;
 
+  @Value("${identityservice.patientIdPattern:[0-9]{10}V[0-9]{6}}")
+  private final String patientIdPattern;
+
   private RestIdentityServiceClient createRestIdentityServiceClient() {
     /*
      * This is extracted with out the Spring annotation so it can be re-used without causing an
@@ -55,10 +58,11 @@ public class RestIdentityServiceClientConfig {
       log.info("Encoding Identity Service has been disabled.");
       return createRestIdentityServiceClient();
     }
-    log.info("Using encoding Identity Service");
+    log.info("Using encoding Identity Service with patient ID pattern '{}'", patientIdPattern);
     return EncodingIdentityServiceClient.builder()
         .encoder(EncryptingIdEncoder.builder().password(encodingKey).codebook(codebook).build())
         .delegate(createRestIdentityServiceClient())
+        .patientIdPattern(patientIdPattern)
         .build();
   }
 

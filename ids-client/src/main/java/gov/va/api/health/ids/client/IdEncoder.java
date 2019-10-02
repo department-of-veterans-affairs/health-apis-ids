@@ -16,6 +16,10 @@ public interface IdEncoder {
     public BadId(String message, Throwable cause) {
       super(message, cause);
     }
+
+    public BadId(String message) {
+      super(message, null);
+    }
   }
 
   /** Parent for all IdEncoder exceptions. */
