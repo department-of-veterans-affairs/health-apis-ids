@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
+import gov.va.api.health.ids.client.IdEncoder.BadId;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.Predicate;
@@ -29,11 +30,22 @@ public class EncodingIdentityServiceTest {
         EncodingIdentityServiceClient.builder()
             .encoder(new FugaziEncoder())
             .delegate(delegate)
+            .patientIdPattern("[0-9]{10}V[0-9]{6}")
             .build();
   }
 
   private ResourceIdentity anything(String id) {
     return ResourceIdentity.builder().system("CDW").resource("ANYTHING").identifier(id).build();
+  }
+
+  @Test(expected = BadId.class)
+  public void exceptionsAreThrownForIdsWithUnknownFormats() {
+    /*
+     * For lookup, V2 ID management throw an error, when the look up value is not a full ICN, V1 ID (type 5 UUID), or
+     * V2 ID.
+     */
+    String mysteryId = "12345";
+    ids.lookup(mysteryId);
   }
 
   @Test
@@ -56,28 +68,12 @@ public class EncodingIdentityServiceTest {
     assertThat(actual).isEqualTo(List.of(patient("1011537977V693883")));
   }
 
-  @Test
-  public void idsWithUnknownFormatsAreReturnedAsUnknownTuple() {
-    /*
-     * For lookup, V2 ID management will return a tuple of system = UNKNOWN, resource = UNKNOWN,
-     * identity = ${lookup-value}, when the look up value is not a full ICN, V1 ID (type 5 UUID), or
-     * V2 ID.
-     */
-    String mysteryId = "12345";
-    List<ResourceIdentity> actual = ids.lookup(mysteryId);
-    assertThat(actual).isEqualTo(List.of(unknown("12345")));
-  }
-
   private ResourceIdentity patient(String icn) {
     return ResourceIdentity.builder().system("MVI").resource("PATIENT").identifier(icn).build();
   }
 
   private Registration registration(String uuid, ResourceIdentity ri) {
     return Registration.builder().uuid(uuid).resourceIdentity(ri).build();
-  }
-
-  private ResourceIdentity unknown(String id) {
-    return ResourceIdentity.builder().system("UNKNOWN").resource("UNKNOWN").identifier(id).build();
   }
 
   @Test

@@ -3,6 +3,7 @@ package gov.va.api.health.ids.client;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
+import gov.va.api.health.ids.client.IdEncoder.BadId;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -26,7 +27,6 @@ import lombok.Getter;
  *       e.g. The RestIdentityServiceClient
  * </ul>
  */
-@Builder
 @Getter
 public class EncodingIdentityServiceClient implements IdentityService {
 
@@ -47,18 +47,25 @@ public class EncodingIdentityServiceClient implements IdentityService {
 
   /**
    * This is an ordered list of handlers. On lookup, each handler will be evaluated to see if it
-   * will accept the ID. The first handler to do so will be used. The "Unknown" handler should be
-   * last in this list so that it can be used as a fallback.
+   * will accept the ID. The first handler to do so will be used.
    */
-  private final List<LookupHandler> lookupHandlers =
-      List.of(
-          new PatientIcnLookupHandler(),
-          new V2LookupHandler(),
-          new UuidLookupHandler(),
-          new UnknownFormatLookupHandler());
+  private final List<LookupHandler> lookupHandlers;
 
-  private final List<RegistrationHandler> registrationHandlers =
-      List.of(new PatientRegistrationHandler(), new V2RegistrationHandler());
+  private final List<RegistrationHandler> registrationHandlers;
+
+  /** Construct a client with standard handlers. */
+  @Builder
+  public EncodingIdentityServiceClient(
+      IdentityService delegate, IdEncoder encoder, String patientIdPattern) {
+    this.delegate = delegate;
+    this.encoder = encoder;
+    lookupHandlers =
+        List.of(
+            new PatientIcnLookupHandler(patientIdPattern),
+            new V2LookupHandler(),
+            new UuidLookupHandler());
+    registrationHandlers = List.of(new PatientRegistrationHandler(), new V2RegistrationHandler());
+  }
 
   @Override
   public List<ResourceIdentity> lookup(String id) {
@@ -67,7 +74,7 @@ public class EncodingIdentityServiceClient implements IdentityService {
             .stream()
             .filter(h -> h.accept(id))
             .findFirst()
-            .orElseThrow(() -> new IllegalStateException("Failed to find lookup handler: " + id));
+            .orElseThrow(() -> new BadId("Do not understand id: " + id));
     return handler.lookup(id);
   }
 
@@ -116,7 +123,11 @@ public class EncodingIdentityServiceClient implements IdentityService {
    */
   private static class PatientIcnLookupHandler implements LookupHandler {
 
-    private final Pattern icnPattern = Pattern.compile("[0-9]{10}V[0-9]{6}");
+    private final Pattern icnPattern;
+
+    PatientIcnLookupHandler(String patientIdPattern) {
+      icnPattern = Pattern.compile(patientIdPattern);
+    }
 
     @Override
     public boolean accept(String id) {
@@ -152,24 +163,6 @@ public class EncodingIdentityServiceClient implements IdentityService {
                   .identifier(identity.identifier())
                   .build())
           .build();
-    }
-  }
-
-  /**
-   * This handler is used deal with IDs that do not match a known format. This should be the last
-   * handler in the list of handlers.
-   */
-  private static class UnknownFormatLookupHandler implements LookupHandler {
-
-    @Override
-    public boolean accept(String id) {
-      return true;
-    }
-
-    @Override
-    public List<ResourceIdentity> lookup(String id) {
-      return List.of(
-          ResourceIdentity.builder().system("UNKNOWN").resource("UNKNOWN").identifier(id).build());
     }
   }
 
