@@ -23,13 +23,10 @@ import org.springframework.web.client.RestTemplate;
 public class RestIdentityServiceClientConfig {
   private final RestTemplate restTemplate;
 
-  @Value("${identityservice.url}")
   private final String url;
 
-  @Value("${identityservice.encodingKey:disabled}")
   private final String encodingKey;
 
-  @Value("${identityservice.patientIdPattern:[0-9]{10}V[0-9]{6}}")
   private final String patientIdPattern;
 
   /**
