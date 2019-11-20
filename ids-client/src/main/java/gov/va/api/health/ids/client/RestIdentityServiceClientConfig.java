@@ -4,7 +4,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.client.EncryptingIdEncoder.Codebook;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +19,6 @@ import org.springframework.web.client.RestTemplate;
  * <p>Requires `identityservice.url` to be defined a property.
  */
 @Configuration
-@AllArgsConstructor(onConstructor = @__({@Autowired}))
 @Slf4j
 public class RestIdentityServiceClientConfig {
   private final RestTemplate restTemplate;
@@ -33,6 +31,25 @@ public class RestIdentityServiceClientConfig {
 
   @Value("${identityservice.patientIdPattern:[0-9]{10}V[0-9]{6}}")
   private final String patientIdPattern;
+
+  /**
+   * Constructor that includes the value annotations.
+   *
+   * @param url The identity service url
+   * @param encodingKey The encoding key to use
+   * @param patientIdPattern The patient id pattern
+   * @param restTemplate The rest template
+   */
+  public RestIdentityServiceClientConfig(
+      @Autowired RestTemplate restTemplate,
+      @Value("${identityservice.url}") String url,
+      @Value("${identityservice.encodingKey:disabled}") String encodingKey,
+      @Value("${identityservice.patientIdPattern:[0-9]{10}V[0-9]{6}}") String patientIdPattern) {
+    this.url = url;
+    this.encodingKey = encodingKey;
+    this.patientIdPattern = patientIdPattern;
+    this.restTemplate = restTemplate;
+  }
 
   private RestIdentityServiceClient createRestIdentityServiceClient() {
     /*
