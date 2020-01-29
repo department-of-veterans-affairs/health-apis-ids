@@ -70,8 +70,7 @@ public class EncodingIdentityServiceClient implements IdentityService {
   @Override
   public List<ResourceIdentity> lookup(String id) {
     LookupHandler handler =
-        lookupHandlers()
-            .stream()
+        lookupHandlers().stream()
             .filter(h -> h.accept(id))
             .findFirst()
             .orElseThrow(() -> new BadId("Do not understand id: " + id));
@@ -86,8 +85,7 @@ public class EncodingIdentityServiceClient implements IdentityService {
   /** Register a single identity. */
   private Registration register(ResourceIdentity identity) {
     RegistrationHandler handler =
-        registrationHandlers()
-            .stream()
+        registrationHandlers().stream()
             .filter(h -> h.accept(identity))
             .findFirst()
             .orElseThrow(
