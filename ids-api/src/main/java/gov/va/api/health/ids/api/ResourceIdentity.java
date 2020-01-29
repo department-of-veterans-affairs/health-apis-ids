@@ -11,11 +11,10 @@ import lombok.Value;
 @Builder(toBuilder = true)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @Schema(
-  description =
-      "A identifier for a particular resource type within a specific system."
-          + " Identifiers are only unique for a given resource type and may be used within"
-          + " the system for other resource types."
-)
+    description =
+        "A identifier for a particular resource type within a specific system."
+            + " Identifiers are only unique for a given resource type and may be used within"
+            + " the system for other resource types.")
 public class ResourceIdentity {
   @Schema(description = "Unique identifier for the resource type in the given system.")
   @NotBlank

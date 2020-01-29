@@ -42,17 +42,14 @@ public class IdServiceV1ApiController {
 
   /** Implementation of GET /v1/ids/{publicId}. See api-v1.yaml. */
   @RequestMapping(
-    value = {"/v1/ids/{publicId}", "/resourceIdentity/{publicId}"},
-    produces = {"application/json"},
-    method = RequestMethod.GET
-  )
+      value = {"/v1/ids/{publicId}", "/resourceIdentity/{publicId}"},
+      produces = {"application/json"},
+      method = RequestMethod.GET)
   @SneakyThrows
   public ResponseEntity<List<ResourceIdentity>> lookup(
       @Valid @PathVariable("publicId") @Pattern(regexp = "[-A-Za-z0-9]+") String publicId) {
     List<ResourceIdentity> identities =
-        repository
-            .findByUuid(publicId)
-            .stream()
+        repository.findByUuid(publicId).stream()
             .map(ResourceIdentityDetail::asResourceIdentity)
             .collect(Collectors.toList());
     log.info("Found {} identities for {}", identities.size(), safe(publicId));
@@ -66,11 +63,10 @@ public class IdServiceV1ApiController {
 
   /** Implementation of POST /v1/ids. See api-v1.yaml. */
   @RequestMapping(
-    value = {"/v1/ids", "/resourceIdentity"},
-    produces = {"application/json"},
-    consumes = {"application/json"},
-    method = RequestMethod.POST
-  )
+      value = {"/v1/ids", "/resourceIdentity"},
+      produces = {"application/json"},
+      consumes = {"application/json"},
+      method = RequestMethod.POST)
   public ResponseEntity<List<Registration>> register(
       @Valid @RequestBody List<ResourceIdentity> identities) {
     List<Registration> registrations = new LinkedList<>();
