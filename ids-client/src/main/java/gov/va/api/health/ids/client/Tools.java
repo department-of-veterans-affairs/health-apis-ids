@@ -9,11 +9,8 @@ import gov.va.api.health.ids.client.EncryptingIdEncoder.CodebookSupplier;
 import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
-import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(staticName = "tools")
 public class Tools {
-
   private static String appName() {
     return System.getProperty("app.name", "ids-client-tools");
   }
@@ -30,6 +27,10 @@ public class Tools {
       default:
         usage();
     }
+  }
+
+  private static Tools tools() {
+    return new Tools();
   }
 
   private static void usage() {
@@ -82,7 +83,6 @@ public class Tools {
   }
 
   private static class EmptyCodebookSupplier implements CodebookSupplier {
-
     @Override
     public Codebook get() {
       return Codebook.builder().build();

@@ -18,7 +18,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 public class EncodingIdentityServiceTest {
-
   @Mock IdentityService delegate;
 
   private EncodingIdentityServiceClient ids;
@@ -73,7 +72,7 @@ public class EncodingIdentityServiceTest {
   }
 
   private Registration registration(String uuid, ResourceIdentity ri) {
-    return Registration.builder().uuid(uuid).resourceIdentity(ri).build();
+    return Registration.builder().uuid(uuid).resourceIdentities(List.of(ri)).build();
   }
 
   @Test

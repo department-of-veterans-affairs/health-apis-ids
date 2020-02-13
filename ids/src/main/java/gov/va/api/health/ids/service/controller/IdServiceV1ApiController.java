@@ -108,7 +108,7 @@ public class IdServiceV1ApiController {
   private Registration toRegistration(ResourceIdentityDetail resourceIdentityDetail) {
     return Registration.builder()
         .uuid(resourceIdentityDetail.uuid())
-        .resourceIdentity(resourceIdentityDetail.asResourceIdentity())
+        .resourceIdentities(List.of(resourceIdentityDetail.asResourceIdentity()))
         .build();
   }
 

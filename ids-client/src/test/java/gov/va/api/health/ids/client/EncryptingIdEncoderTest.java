@@ -8,6 +8,7 @@ import gov.va.api.health.ids.client.EncryptingIdEncoder.Codebook.Mapping;
 import gov.va.api.health.ids.client.EncryptingIdEncoder.IncompleteResourceIdentity;
 import gov.va.api.health.ids.client.EncryptingIdEncoder.UnknownRepresentation;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
+import java.util.List;
 import org.junit.Test;
 
 public class EncryptingIdEncoderTest {
@@ -54,9 +55,7 @@ public class EncryptingIdEncoderTest {
   public void codebookShortens() {
     Codebook cb =
         Codebook.builder()
-            .map(Mapping.of("ONE", "1"))
-            .map(Mapping.of("TWO", "2"))
-            .map(Mapping.of("THREE", "3"))
+            .map(List.of(Mapping.of("ONE", "1"), Mapping.of("TWO", "2"), Mapping.of("THREE", "3")))
             .build();
     assertThat(cb.shorten("ONE")).isEqualTo("1");
     assertThat(cb.restore("1")).isEqualTo("ONE");
@@ -67,18 +66,14 @@ public class EncryptingIdEncoderTest {
   @Test(expected = IllegalArgumentException.class)
   public void codebookThrowsExceptionForDuplicateLongValues() {
     Codebook.builder()
-        .map(Mapping.of("ONE", "O"))
-        .map(Mapping.of("ONE", "T"))
-        .map(Mapping.of("THREE", "T"))
+        .map(List.of(Mapping.of("ONE", "O"), Mapping.of("ONE", "T"), Mapping.of("THREE", "T")))
         .build();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void codebookThrowsExceptionForDuplicateShortValues() {
     Codebook.builder()
-        .map(Mapping.of("ONE", "O"))
-        .map(Mapping.of("TWO", "T"))
-        .map(Mapping.of("THREE", "T"))
+        .map(List.of(Mapping.of("ONE", "O"), Mapping.of("TWO", "T"), Mapping.of("THREE", "T")))
         .build();
   }
 
@@ -160,10 +155,12 @@ public class EncryptingIdEncoderTest {
   public EncryptingIdEncoder encoder() {
     Codebook codebook =
         Codebook.builder()
-            .map(Mapping.of("WHATEVER", "W"))
-            .map(Mapping.of("ANYTHING", "A"))
-            .map(Mapping.of("CDW", "C"))
-            .map(Mapping.of("MEDICATION_STATEMENT", "S"))
+            .map(
+                List.of(
+                    Mapping.of("WHATEVER", "W"),
+                    Mapping.of("ANYTHING", "A"),
+                    Mapping.of("CDW", "C"),
+                    Mapping.of("MEDICATION_STATEMENT", "S")))
             .build();
     return EncryptingIdEncoder.builder().password("magic-ids").codebook(codebook).build();
   }
@@ -197,7 +194,6 @@ public class EncryptingIdEncoderTest {
 
   @Test
   public void roundTripWithDifferentDecoder() {
-
     ResourceIdentity original =
         ResourceIdentity.builder()
             .system("WHATEVER")

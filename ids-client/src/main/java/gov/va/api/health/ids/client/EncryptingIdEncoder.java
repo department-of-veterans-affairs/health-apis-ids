@@ -22,7 +22,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Singular;
 import lombok.SneakyThrows;
 import lombok.Value;
 import org.apache.commons.codec.binary.Base32;
@@ -34,7 +33,6 @@ import org.apache.commons.codec.binary.Base32;
  * URLS, etc.
  */
 public class EncryptingIdEncoder implements IdEncoder {
-
   private final SecretKeySpec secretKey;
 
   private final Codebook codebook;
@@ -116,13 +114,12 @@ public class EncryptingIdEncoder implements IdEncoder {
    */
   @SuppressWarnings("WeakerAccess")
   public static class Codebook {
-
     private final Map<String, String> longToShort;
 
     private final Map<String, String> shortToLong;
 
     @Builder
-    Codebook(@Singular("map") Collection<Mapping> map) {
+    Codebook(Collection<Mapping> map) {
       longToShort = new HashMap<>(map.size());
       shortToLong = new HashMap<>(map.size());
       for (var mapping : map) {
@@ -158,7 +155,6 @@ public class EncryptingIdEncoder implements IdEncoder {
    * resource.
    */
   static class IncompleteResourceIdentity extends IllegalArgumentException {
-
     IncompleteResourceIdentity(ResourceIdentity resourceIdentity) {
       super(resourceIdentity.toString());
     }
@@ -169,7 +165,6 @@ public class EncryptingIdEncoder implements IdEncoder {
    * but rather the decrypted value was missing information.
    */
   static class UnknownRepresentation extends IllegalArgumentException {
-
     UnknownRepresentation(String s) {
       super(s);
     }
@@ -177,7 +172,6 @@ public class EncryptingIdEncoder implements IdEncoder {
 
   /** This class encapsulates the encoding algorithm. */
   private static class UrlSafeEncoding {
-
     /**
      * We'll use Base 32 (https://www.ietf.org/rfc/rfc4648.txt) to encode. This uses characters A-Z
      * and numbers 2-7, making this URL safe and _reasonable_ nice looking. We'll also pad with 0
@@ -250,8 +244,8 @@ public class EncryptingIdEncoder implements IdEncoder {
    * use a cypher-per-thread approach. We'll also need to keep encrypting and decrypting separate
    * because they are initialized differently.
    */
+  @SuppressWarnings("ThreadLocalUsage")
   private class CipherPool {
-
     private final ThreadLocal<Cipher> encryptors = new ThreadLocal<>();
 
     private final ThreadLocal<Cipher> decryptors = new ThreadLocal<>();

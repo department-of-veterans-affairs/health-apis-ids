@@ -89,7 +89,7 @@ public class IdServiceV1ApiControllerTest {
   }
 
   private Registration registration(String uuid, ResourceIdentity resourceIdentity) {
-    return Registration.builder().uuid(uuid).resourceIdentity(resourceIdentity).build();
+    return Registration.builder().uuid(uuid).resourceIdentities(List.of(resourceIdentity)).build();
   }
 
   @Test
