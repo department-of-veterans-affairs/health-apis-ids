@@ -5,7 +5,6 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import lombok.Builder;
-import lombok.Singular;
 import lombok.Value;
 
 @Value
@@ -13,5 +12,5 @@ import lombok.Value;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Registration {
   @NotBlank String uuid;
-  @Singular @Valid List<ResourceIdentity> resourceIdentities;
+  @Valid List<ResourceIdentity> resourceIdentities;
 }

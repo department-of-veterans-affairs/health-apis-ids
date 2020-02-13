@@ -5,7 +5,7 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.ids.service.controller.impl.ResourceIdentityDetail;
 import gov.va.api.health.ids.service.controller.impl.ResourceIdentityDetailRepository;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -69,8 +69,8 @@ public class IdServiceV1ApiController {
       method = RequestMethod.POST)
   public ResponseEntity<List<Registration>> register(
       @Valid @RequestBody List<ResourceIdentity> identities) {
-    List<Registration> registrations = new LinkedList<>();
-    List<ResourceIdentityDetail> newRegistrations = new LinkedList<>();
+    List<Registration> registrations = new ArrayList<>(identities.size());
+    List<ResourceIdentityDetail> newRegistrations = new ArrayList<>(identities.size());
 
     for (ResourceIdentity identity : identities) {
       List<Registration> previouslyRegistered = find(identity);
@@ -108,7 +108,7 @@ public class IdServiceV1ApiController {
   private Registration toRegistration(ResourceIdentityDetail resourceIdentityDetail) {
     return Registration.builder()
         .uuid(resourceIdentityDetail.uuid())
-        .resourceIdentity(resourceIdentityDetail.asResourceIdentity())
+        .resourceIdentities(List.of(resourceIdentityDetail.asResourceIdentity()))
         .build();
   }
 

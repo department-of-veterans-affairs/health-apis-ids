@@ -9,7 +9,6 @@ import org.mockito.Mockito;
 import org.springframework.web.client.RestTemplate;
 
 public class RestIdentityServiceClientConfigTest {
-
   @Test
   public void encodingIdentityServiceClientUsesEncodingClientIfPasswordIsSet() {
     RestTemplate rt = Mockito.mock(RestTemplate.class);

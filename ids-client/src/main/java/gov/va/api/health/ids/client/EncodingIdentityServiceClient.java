@@ -154,12 +154,13 @@ public class EncodingIdentityServiceClient implements IdentityService {
     public Registration register(ResourceIdentity identity) {
       return Registration.builder()
           .uuid(identity.identifier())
-          .resourceIdentity(
-              ResourceIdentity.builder()
-                  .system("MVI")
-                  .resource("PATIENT")
-                  .identifier(identity.identifier())
-                  .build())
+          .resourceIdentities(
+              List.of(
+                  ResourceIdentity.builder()
+                      .system("MVI")
+                      .resource("PATIENT")
+                      .identifier(identity.identifier())
+                      .build()))
           .build();
     }
   }
@@ -176,7 +177,7 @@ public class EncodingIdentityServiceClient implements IdentityService {
     public Registration register(ResourceIdentity identity) {
       return Registration.builder()
           .uuid(V2_PREFIX + encoder().encode(identity))
-          .resourceIdentity(identity.toBuilder().build())
+          .resourceIdentities(List.of(identity.toBuilder().build()))
           .build();
     }
   }

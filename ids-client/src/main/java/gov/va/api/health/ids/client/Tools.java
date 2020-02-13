@@ -13,22 +13,18 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(staticName = "tools")
 public class Tools {
-
   private static String appName() {
     return System.getProperty("app.name", "ids-client-tools");
   }
 
   /** Tool main called from command line. */
   public static void main(String[] args) {
-    switch (args.length) {
-      case 1:
-        tools().decode(args[0]);
-        break;
-      case 3:
-        tools().encode(args[0], args[1], args[2]);
-        break;
-      default:
-        usage();
+    if (args.length == 1) {
+      tools().decode(args[0]);
+    } else if (args.length == 3) {
+      tools().encode(args[0], args[1], args[2]);
+    } else {
+      usage();
     }
   }
 
@@ -82,7 +78,6 @@ public class Tools {
   }
 
   private static class EmptyCodebookSupplier implements CodebookSupplier {
-
     @Override
     public Codebook get() {
       return Codebook.builder().build();

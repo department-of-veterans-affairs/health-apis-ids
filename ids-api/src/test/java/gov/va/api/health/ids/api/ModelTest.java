@@ -7,12 +7,13 @@ import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.ids.api.IdentityService.LookupFailed;
 import gov.va.api.health.ids.api.IdentityService.RegistrationFailed;
 import gov.va.api.health.ids.api.IdentityService.UnknownIdentity;
+import java.util.List;
 import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class ModelTest {
-  @SuppressWarnings("ThrowableNotThrown")
   @Test
+  @SuppressWarnings({"ThrowableNotThrown", "unused"})
   public void exceptionConstructors() {
     new UnknownIdentity("some id");
     new LookupFailed("some id", "some reason");
@@ -25,7 +26,7 @@ public class ModelTest {
 
   @Test
   public void registration() {
-    roundTrip(Registration.builder().uuid("u1").resourceIdentity(id()).build());
+    roundTrip(Registration.builder().uuid("u1").resourceIdentities(List.of(id())).build());
   }
 
   @Test

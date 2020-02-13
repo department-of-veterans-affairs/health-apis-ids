@@ -195,9 +195,9 @@ public class RestIdentityServiceClientTest {
         ResourceIdentity.builder().identifier("a").system("CDW").resource("whatever").build();
     ResourceIdentity b = a.toBuilder().identifier("b").build();
     ResourceIdentity c = a.toBuilder().identifier("c").build();
-    Registration x = Registration.builder().resourceIdentity(a).uuid("A").build();
-    Registration y = Registration.builder().resourceIdentity(b).uuid("B").build();
-    Registration z = Registration.builder().resourceIdentity(c).uuid("C").build();
+    Registration x = Registration.builder().resourceIdentities(List.of(a)).uuid("A").build();
+    Registration y = Registration.builder().resourceIdentities(List.of(b)).uuid("B").build();
+    Registration z = Registration.builder().resourceIdentities(List.of(c)).uuid("C").build();
     return Arrays.asList(x, y, z);
   }
 
