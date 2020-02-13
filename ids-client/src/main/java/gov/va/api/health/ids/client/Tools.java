@@ -9,7 +9,9 @@ import gov.va.api.health.ids.client.EncryptingIdEncoder.CodebookSupplier;
 import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(staticName = "tools")
 public class Tools {
   private static String appName() {
     return System.getProperty("app.name", "ids-client-tools");
@@ -17,20 +19,13 @@ public class Tools {
 
   /** Tool main called from command line. */
   public static void main(String[] args) {
-    switch (args.length) {
-      case 1:
-        tools().decode(args[0]);
-        break;
-      case 3:
-        tools().encode(args[0], args[1], args[2]);
-        break;
-      default:
-        usage();
+    if (args.length == 1) {
+      tools().decode(args[0]);
+    } else if (args.length == 3) {
+      tools().encode(args[0], args[1], args[2]);
+    } else {
+      usage();
     }
-  }
-
-  private static Tools tools() {
-    return new Tools();
   }
 
   private static void usage() {

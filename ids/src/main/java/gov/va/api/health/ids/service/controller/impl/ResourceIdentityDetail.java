@@ -86,7 +86,7 @@ public class ResourceIdentityDetail {
     if (this == o) {
       return true;
     }
-    if (o == null || getClass() != o.getClass()) {
+    if (!(o instanceof ResourceIdentityDetail)) {
       return false;
     }
     ResourceIdentityDetail that = (ResourceIdentityDetail) o;

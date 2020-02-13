@@ -1,6 +1,7 @@
 package gov.va.api.health.ids.client;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.emptyMap;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import gov.va.api.health.ids.api.ResourceIdentity;
@@ -120,6 +121,11 @@ public class EncryptingIdEncoder implements IdEncoder {
 
     @Builder
     Codebook(Collection<Mapping> map) {
+      if (map == null) {
+        longToShort = emptyMap();
+        shortToLong = emptyMap();
+        return;
+      }
       longToShort = new HashMap<>(map.size());
       shortToLong = new HashMap<>(map.size());
       for (var mapping : map) {
