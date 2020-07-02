@@ -12,7 +12,7 @@
   <packaging>jar</packaging>
   <properties>
     <java-uuid-generator.version>3.1.5</java-uuid-generator.version>
-    <mysql-connector-java.version>6.0.6</mysql-connector-java.version>
+    <mysql-connector-java.version>8.0.16</mysql-connector-java.version>
   </properties>
   <dependencies>
     <dependency>
