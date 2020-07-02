@@ -4,14 +4,14 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>api-starter</artifactId>
-    <version>6.0.0</version>
+    <version>6.0.9</version>
     <relativePath/>
   </parent>
   <artifactId>ids-client</artifactId>
-  <version>3.0.1-SNAPSHOT</version>
+  <version>3.0.1</version>
   <packaging>jar</packaging>
   <properties>
-    <health-apis-parent.version>6.0.0</health-apis-parent.version>
+    <health-apis-parent.version>6.0.9</health-apis-parent.version>
   </properties>
   <dependencies>
     <dependency>
