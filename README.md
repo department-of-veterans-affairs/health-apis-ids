@@ -82,7 +82,7 @@ git-secrets must be installed and configured to scan for AWS entries and the pat
 [.gitallowed](.gitallowed).
 The [init-git-secrets.sh](src/scripts/init-git-secrets.sh) script can be used to simply set up.
 
-> ###### !!  Mac users
+> ###### !!?? Mac users
 > If using [Homebrew](https://brew.sh/), use `brew install --HEAD git-secrets` as decribed
 > by [this post](https://github.com/awslabs/git-secrets/issues/65#issuecomment-416382565) to
 > avoid issues committing multiple files.
