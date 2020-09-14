@@ -1,6 +1,6 @@
 package gov.va.api.health.ids.client;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.client.EncryptingIdEncoder.Codebook;
@@ -68,26 +68,28 @@ public class RestIdentityServiceClientConfig {
   @Bean
   @ConditionalOnBean(Codebook.class)
   public IdentityService encodingIdentityServiceClient(@Autowired Codebook codebook) {
-    if (isBlank(encodingKey) || "disabled".equals(encodingKey)) {
-      if (isBlank(url)) {
-        throw new IllegalStateException("Identity service is not configured.");
-      }
-      log.info("Encoding Identity Service has been disabled.");
-      return createRestIdentityServiceClient();
+    boolean useEncoder = isNotBlank(encodingKey) && !"disabled".equals(encodingKey);
+    boolean useService = isNotBlank(url);
+    if (useEncoder && useService) {
+      log.info("Using encoding Identity Service with patient ID pattern '{}'", patientIdPattern);
+      return EncodingIdentityServiceClient.builder()
+          .encoder(EncryptingIdEncoder.builder().password(encodingKey).codebook(codebook).build())
+          .delegate(createRestIdentityServiceClient())
+          .patientIdPattern(patientIdPattern)
+          .build();
     }
-    if (isBlank(url)) {
+    if (useEncoder) {
       log.info("Rest Identity Service Client has been disabled.");
       return EncodingIdentityServiceClient.builder()
           .encoder(EncryptingIdEncoder.builder().password(encodingKey).codebook(codebook).build())
           .patientIdPattern(patientIdPattern)
           .build();
     }
-    log.info("Using encoding Identity Service with patient ID pattern '{}'", patientIdPattern);
-    return EncodingIdentityServiceClient.builder()
-        .encoder(EncryptingIdEncoder.builder().password(encodingKey).codebook(codebook).build())
-        .delegate(createRestIdentityServiceClient())
-        .patientIdPattern(patientIdPattern)
-        .build();
+    if (useService) {
+      log.info("Encoding Identity Service has been disabled.");
+      return createRestIdentityServiceClient();
+    }
+    throw new IllegalStateException("Identity service is not configured.");
   }
 
   /** Create a new IdentityService that uses REST for communication. */
