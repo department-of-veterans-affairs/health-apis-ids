@@ -69,8 +69,18 @@ public class RestIdentityServiceClientConfig {
   @ConditionalOnBean(Codebook.class)
   public IdentityService encodingIdentityServiceClient(@Autowired Codebook codebook) {
     if (isBlank(encodingKey) || "disabled".equals(encodingKey)) {
+      if (isBlank(url)) {
+        throw new IllegalStateException("Identity service is not configured.");
+      }
       log.info("Encoding Identity Service has been disabled.");
       return createRestIdentityServiceClient();
+    }
+    if (isBlank(url)) {
+      log.info("Rest Identity Service Client has been disabled.");
+      return EncodingIdentityServiceClient.builder()
+          .encoder(EncryptingIdEncoder.builder().password(encodingKey).codebook(codebook).build())
+          .patientIdPattern(patientIdPattern)
+          .build();
     }
     log.info("Using encoding Identity Service with patient ID pattern '{}'", patientIdPattern);
     return EncodingIdentityServiceClient.builder()
