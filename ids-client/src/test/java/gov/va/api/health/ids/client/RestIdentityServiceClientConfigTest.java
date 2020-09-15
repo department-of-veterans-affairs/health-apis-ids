@@ -9,11 +9,27 @@ import org.mockito.Mockito;
 import org.springframework.web.client.RestTemplate;
 
 public class RestIdentityServiceClientConfigTest {
+  @Test(expected = IllegalStateException.class)
+  public void encodingIdentityServiceClientThrowsExceptionIfNotConfigured() {
+    RestTemplate rt = Mockito.mock(RestTemplate.class);
+    new RestIdentityServiceClientConfig(rt, null, null, ".*")
+        .encodingIdentityServiceClient(Codebook.builder().build());
+  }
+
   @Test
   public void encodingIdentityServiceClientUsesEncodingClientIfPasswordIsSet() {
     RestTemplate rt = Mockito.mock(RestTemplate.class);
     IdentityService ids =
         new RestIdentityServiceClientConfig(rt, "http://example.com", "secret", ".*")
+            .encodingIdentityServiceClient(Codebook.builder().build());
+    assertThat(ids).isInstanceOf(EncodingIdentityServiceClient.class);
+  }
+
+  @Test
+  public void encodingIdentityServiceClientUsesEncodingClientIfPasswordIsSetAndNotUrl() {
+    RestTemplate rt = Mockito.mock(RestTemplate.class);
+    IdentityService ids =
+        new RestIdentityServiceClientConfig(rt, null, "secret", ".*")
             .encodingIdentityServiceClient(Codebook.builder().build());
     assertThat(ids).isInstanceOf(EncodingIdentityServiceClient.class);
   }
