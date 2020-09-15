@@ -71,7 +71,10 @@ public class RestIdentityServiceClientConfig {
     boolean useEncoder = isNotBlank(encodingKey) && !"disabled".equals(encodingKey);
     boolean useService = isNotBlank(url);
     if (useEncoder && useService) {
-      log.info("Using encoding Identity Service with patient ID pattern '{}'", patientIdPattern);
+      log.info(
+          "Using encoding Identity Service with patient ID pattern '{}'"
+              + " and rest Identity Service fallback",
+          patientIdPattern);
       return EncodingIdentityServiceClient.builder()
           .encoder(EncryptingIdEncoder.builder().password(encodingKey).codebook(codebook).build())
           .delegate(createRestIdentityServiceClient())
@@ -79,14 +82,14 @@ public class RestIdentityServiceClientConfig {
           .build();
     }
     if (useEncoder) {
-      log.info("Rest Identity Service Client has been disabled.");
+      log.info("Using encoding Identity Service with patient ID pattern '{}'", patientIdPattern);
       return EncodingIdentityServiceClient.builder()
           .encoder(EncryptingIdEncoder.builder().password(encodingKey).codebook(codebook).build())
           .patientIdPattern(patientIdPattern)
           .build();
     }
     if (useService) {
-      log.info("Encoding Identity Service has been disabled.");
+      log.info("Using rest Identity Service Client.");
       return createRestIdentityServiceClient();
     }
     throw new IllegalStateException("Identity service is not configured.");
