@@ -41,14 +41,18 @@ done
 [ -z "$IDS_PASSWORD" ] && echo "Password not specified" && exit 1
 
 case $(uname) in
-  MING*|MSYS*) PATH_SEPARATOR=";";;
+  MING*|MSYS*)
+    PATH_SEPARATOR=";"
+    IDS_TOOLS_JAR=$(cygpath -dm "$IDS_TOOLS_JAR")
+    [ -n "${IDS_MAPPING_JAR:-}" ] && IDS_MAPPING_JAR=$(cygpath -dm "$IDS_TOOLS_JAR")
+	;;
   *) PATH_SEPARATOR=":";;
 esac
-
 
 $JAVA_EXE \
   -Dpassword="$IDS_PASSWORD" \
   -cp "${IDS_TOOLS_JAR}${PATH_SEPARATOR}${IDS_MAPPING_JAR}" \
   gov.va.api.health.ids.client.Tools \
   $@
+
 
