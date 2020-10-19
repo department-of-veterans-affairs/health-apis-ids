@@ -40,19 +40,22 @@ done
 
 [ -z "$IDS_PASSWORD" ] && echo "Password not specified" && exit 1
 
+[ -z "$IDS_MAPPING_JAR" ] && echo "Mapping not specified" && exit 1
+
+CLASSPATH="${IDS_TOOLS_JAR}:${IDS_MAPPING_JAR}"
+
 case $(uname) in
   MING*|MSYS*)
-    PATH_SEPARATOR=";"
-    IDS_TOOLS_JAR=$(cygpath -dm "$IDS_TOOLS_JAR")
-    [ -n "${IDS_MAPPING_JAR:-}" ] && IDS_MAPPING_JAR=$(cygpath -dm "$IDS_TOOLS_JAR")
+	CLASSPATH=$(cygpath -pdm "$CLASSPATH")
 	;;
-  *) PATH_SEPARATOR=":";;
+  *) ;;
 esac
 
 $JAVA_EXE \
   -Dpassword="$IDS_PASSWORD" \
-  -cp "${IDS_TOOLS_JAR}${PATH_SEPARATOR}${IDS_MAPPING_JAR}" \
+  -cp "${CLASSPATH}" \
   gov.va.api.health.ids.client.Tools \
   $@
+
 
 
