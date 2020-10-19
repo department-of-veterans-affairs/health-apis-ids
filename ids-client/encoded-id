@@ -44,12 +44,11 @@ done
 
 CLASSPATH="${IDS_TOOLS_JAR}:${IDS_MAPPING_JAR}"
 
-case $(uname) in
-  MING*|MSYS*)
-	CLASSPATH=$(cygpath -pdm "$CLASSPATH")
-	;;
-  *) ;;
-esac
+if [[ "$(uname)" =~ MING*|MSYS* ]];
+then
+  CLASSPATH=$(cygpath -pdm "$CLASSPATH")
+fi
+
 
 $JAVA_EXE \
   -Dpassword="$IDS_PASSWORD" \
