@@ -40,15 +40,21 @@ done
 
 [ -z "$IDS_PASSWORD" ] && echo "Password not specified" && exit 1
 
-case $(uname) in
-  MING*|MSYS*) PATH_SEPARATOR=";";;
-  *) PATH_SEPARATOR=":";;
-esac
+[ -z "$IDS_MAPPING_JAR" ] && echo "Mapping not specified" && exit 1
+
+CLASSPATH="${IDS_TOOLS_JAR}:${IDS_MAPPING_JAR}"
+
+if [[ "$(uname)" =~ MING*|MSYS* ]];
+then
+  CLASSPATH=$(cygpath -pdm "$CLASSPATH")
+fi
 
 
 $JAVA_EXE \
   -Dpassword="$IDS_PASSWORD" \
-  -cp "${IDS_TOOLS_JAR}${PATH_SEPARATOR}${IDS_MAPPING_JAR}" \
+  -cp "${CLASSPATH}" \
   gov.va.api.health.ids.client.Tools \
   $@
+
+
 
