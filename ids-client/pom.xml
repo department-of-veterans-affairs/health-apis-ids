@@ -4,7 +4,7 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>api-starter</artifactId>
-    <version>7.0.15</version>
+    <version>7.0.19</version>
     <relativePath/>
   </parent>
   <artifactId>ids-client</artifactId>
