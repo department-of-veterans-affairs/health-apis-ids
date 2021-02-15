@@ -4,11 +4,11 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>service-starter</artifactId>
-    <version>7.0.20</version>
+    <version>7.0.21</version>
     <relativePath/>
   </parent>
   <artifactId>ids</artifactId>
-  <version>3.0.6-SNAPSHOT</version>
+  <version>3.0.6</version>
   <packaging>jar</packaging>
   <properties>
     <java-uuid-generator.version>3.1.5</java-uuid-generator.version>
