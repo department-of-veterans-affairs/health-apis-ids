@@ -3,9 +3,15 @@ package gov.va.api.health.ids.client;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
+import gov.va.api.health.ids.client.Format.LookupHandler;
+import gov.va.api.health.ids.client.Format.RegistrationHandler;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
+import gov.va.api.health.ids.client.PatientIcnFormat.PatientIcnLookupHandler;
+import gov.va.api.health.ids.client.PatientIcnFormat.PatientRegistrationHandler;
+import gov.va.api.health.ids.client.UuidFormat.UuidLookupHandler;
+import gov.va.api.health.ids.client.V2Format.V2LookupHandler;
+import gov.va.api.health.ids.client.V2Format.V2RegistrationHandler;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,21 +37,6 @@ import lombok.Getter;
 public class EncodingIdentityServiceClient implements IdentityService {
 
   /**
-   * This prefix is the starting marker of V2 ids. IDs that start with this string will be passed to
-   * the encoder for decoding. All ids generated during registration will have this prefix.
-   */
-  public static final String V2_PREFIX = "I2-";
-
-  /**
-   * UUID type IDs will be passed to this delegate for lookups. It will not be used for
-   * registration.
-   */
-  private final IdentityService delegate;
-
-  /** This is used for registration of all IDs and lookup if encoded IDs. */
-  private final IdEncoder encoder;
-
-  /**
    * This is an ordered list of handlers. On lookup, each handler will be evaluated to see if it
    * will accept the ID. The first handler to do so will be used.
    */
@@ -57,14 +48,13 @@ public class EncodingIdentityServiceClient implements IdentityService {
   @Builder
   public EncodingIdentityServiceClient(
       IdentityService delegate, IdEncoder encoder, String patientIdPattern) {
-    this.delegate = delegate;
-    this.encoder = encoder;
     lookupHandlers =
         List.of(
-            new PatientIcnLookupHandler(patientIdPattern),
-            new V2LookupHandler(),
-            new UuidLookupHandler());
-    registrationHandlers = List.of(new PatientRegistrationHandler(), new V2RegistrationHandler());
+            PatientIcnLookupHandler.of(patientIdPattern),
+            V2LookupHandler.of(encoder),
+            UuidLookupHandler.of(delegate));
+    registrationHandlers =
+        List.of(new PatientRegistrationHandler(), V2RegistrationHandler.of(encoder));
   }
 
   @Override
@@ -91,128 +81,5 @@ public class EncodingIdentityServiceClient implements IdentityService {
             .orElseThrow(
                 () -> new IllegalStateException("Failed to find registration handler:" + identity));
     return handler.register(identity);
-  }
-
-  /**
-   * Registration handlers encapsulate the logic necessary to register different types of resources.
-   */
-  private interface RegistrationHandler {
-    /** Return true if this handler understands the given identity. */
-    boolean accept(ResourceIdentity identity);
-
-    /**
-     * Perform registration. This is only called if the handler indicates it accepts the identity.
-     */
-    Registration register(ResourceIdentity identity);
-  }
-
-  /** Lookup handlers encapsulate the logic necessary to perform lookups for each ID type. */
-  private interface LookupHandler {
-    /** Return true if this handler understands the given ID. */
-    boolean accept(String id);
-
-    /** This is only called if the handler indicates that it can accept it. */
-    List<ResourceIdentity> lookup(String id);
-  }
-
-  /**
-   * This handler is used deal with IDs that match the 10V6 patient ICN pattern. ICNs should not be
-   * encoded or decoded.
-   */
-  private static class PatientIcnLookupHandler implements LookupHandler {
-
-    private final Pattern icnPattern;
-
-    PatientIcnLookupHandler(String patientIdPattern) {
-      icnPattern = Pattern.compile(patientIdPattern);
-    }
-
-    @Override
-    public boolean accept(String id) {
-      return icnPattern.matcher(id).matches();
-    }
-
-    @Override
-    public List<ResourceIdentity> lookup(String id) {
-      return List.of(
-          ResourceIdentity.builder().system("MVI").resource("PATIENT").identifier(id).build());
-    }
-  }
-
-  /**
-   * This handler will transparently register Patient ICNs. The system will always be `MVI` and the
-   * resource will be `PATIENT`.
-   */
-  private static class PatientRegistrationHandler implements RegistrationHandler {
-
-    @Override
-    public boolean accept(ResourceIdentity identity) {
-      return "patient".equalsIgnoreCase(identity.resource());
-    }
-
-    @Override
-    public Registration register(ResourceIdentity identity) {
-      return Registration.builder()
-          .uuid(identity.identifier())
-          .resourceIdentities(
-              List.of(
-                  ResourceIdentity.builder()
-                      .system("MVI")
-                      .resource("PATIENT")
-                      .identifier(identity.identifier())
-                      .build()))
-          .build();
-    }
-  }
-
-  /** This handler will emit encoded V2 ids. */
-  private class V2RegistrationHandler implements RegistrationHandler {
-
-    @Override
-    public boolean accept(ResourceIdentity identity) {
-      return true;
-    }
-
-    @Override
-    public Registration register(ResourceIdentity identity) {
-      return Registration.builder()
-          .uuid(V2_PREFIX + encoder().encode(identity))
-          .resourceIdentities(List.of(identity.toBuilder().build()))
-          .build();
-    }
-  }
-
-  /** This handler understands UUID and will delegate lookups. */
-  private class UuidLookupHandler implements LookupHandler {
-
-    private final Pattern uuidPattern =
-        Pattern.compile(
-            "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}",
-            Pattern.CASE_INSENSITIVE);
-
-    @Override
-    public boolean accept(String id) {
-      return uuidPattern.matcher(id).matches();
-    }
-
-    @Override
-    public List<ResourceIdentity> lookup(String id) {
-      return delegate().lookup(id);
-    }
-  }
-
-  /** This handler uses the encoder to decode V2 style IDs. */
-  private class V2LookupHandler implements LookupHandler {
-
-    @Override
-    public boolean accept(String id) {
-      return id.startsWith(V2_PREFIX);
-    }
-
-    @Override
-    public List<ResourceIdentity> lookup(String id) {
-      String unversionedId = id.substring(V2_PREFIX.length());
-      return List.of(encoder().decode(unversionedId));
-    }
   }
 }
