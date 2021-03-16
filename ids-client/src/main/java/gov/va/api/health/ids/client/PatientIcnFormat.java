@@ -9,15 +9,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class PatientIcnFormat {
-
-  /** Return a two way format that matches patient ICNs against the given pattern. */
-  public static Format of(String patientIdPattern) {
-    return TwoWayFormat.builder()
-        .lookupHandler(PatientIcnLookupHandler.of(patientIdPattern))
-        .registrationHandler(new PatientRegistrationHandler())
-        .build();
-  }
-
   /** Create an MVI PATIENT identity. */
   public static ResourceIdentity identityFor(String patientId) {
     return ResourceIdentity.builder()
@@ -27,12 +18,19 @@ public class PatientIcnFormat {
         .build();
   }
 
+  /** Return a two way format that matches patient ICNs against the given pattern. */
+  public static Format of(String patientIdPattern) {
+    return TwoWayFormat.builder()
+        .lookupHandler(PatientIcnLookupHandler.of(patientIdPattern))
+        .registrationHandler(new PatientRegistrationHandler())
+        .build();
+  }
+
   /**
    * This handler is used deal with IDs that match the 10V6 patient ICN pattern. ICNs should not be
    * encoded or decoded.
    */
   static class PatientIcnLookupHandler implements LookupHandler {
-
     private final Pattern icnPattern;
 
     PatientIcnLookupHandler(String patientIdPattern) {
@@ -59,7 +57,6 @@ public class PatientIcnFormat {
    * resource will be `PATIENT`.
    */
   static class PatientRegistrationHandler implements RegistrationHandler {
-
     @Override
     public boolean accept(ResourceIdentity identity) {
       return "patient".equalsIgnoreCase(identity.resource());
