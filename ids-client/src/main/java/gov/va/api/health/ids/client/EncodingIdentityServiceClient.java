@@ -1,18 +1,15 @@
 package gov.va.api.health.ids.client;
 
+import static java.util.stream.Collectors.toList;
+
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.ids.client.Format.LookupHandler;
 import gov.va.api.health.ids.client.Format.RegistrationHandler;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
-import gov.va.api.health.ids.client.PatientIcnFormat.PatientIcnLookupHandler;
-import gov.va.api.health.ids.client.PatientIcnFormat.PatientRegistrationHandler;
-import gov.va.api.health.ids.client.UuidFormat.UuidLookupHandler;
-import gov.va.api.health.ids.client.V2Format.V2LookupHandler;
-import gov.va.api.health.ids.client.V2Format.V2RegistrationHandler;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -37,30 +34,31 @@ import lombok.Getter;
 public class EncodingIdentityServiceClient implements IdentityService {
 
   /**
-   * This is an ordered list of handlers. On lookup, each handler will be evaluated to see if it
-   * will accept the ID. The first handler to do so will be used.
+   * This is an ordered list of formats. On lookup, each format will be evaluated to see if it will
+   * accept the ID. The first format to do so will be used.
    */
-  private final List<LookupHandler> lookupHandlers;
-
-  private final List<RegistrationHandler> registrationHandlers;
+  private final List<Format> formats;
 
   /** Construct a client with standard handlers. */
   @Builder
   public EncodingIdentityServiceClient(
       IdentityService delegate, IdEncoder encoder, String patientIdPattern) {
-    lookupHandlers =
+    this(
         List.of(
-            PatientIcnLookupHandler.of(patientIdPattern),
-            V2LookupHandler.of(encoder),
-            UuidLookupHandler.of(delegate));
-    registrationHandlers =
-        List.of(new PatientRegistrationHandler(), V2RegistrationHandler.of(encoder));
+            PatientIcnFormat.of(patientIdPattern),
+            EncodedIdFormat.of(EncodedIdFormat.V2_PREFIX, encoder),
+            UuidFormat.of(delegate)));
+  }
+
+  public EncodingIdentityServiceClient(List<Format> formats) {
+    this.formats = formats;
   }
 
   @Override
   public List<ResourceIdentity> lookup(String id) {
     LookupHandler handler =
-        lookupHandlers().stream()
+        formats().stream()
+            .map(Format::lookupHandler)
             .filter(h -> h.accept(id))
             .findFirst()
             .orElseThrow(() -> new BadId("Do not understand id: " + id));
@@ -69,13 +67,16 @@ public class EncodingIdentityServiceClient implements IdentityService {
 
   @Override
   public List<Registration> register(List<ResourceIdentity> identities) {
-    return identities.stream().map(this::register).collect(Collectors.toList());
+    return identities.stream().map(this::register).collect(toList());
   }
 
   /** Register a single identity. */
   private Registration register(ResourceIdentity identity) {
     RegistrationHandler handler =
-        registrationHandlers().stream()
+        formats.stream()
+            .map(Format::registrationHandler)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
             .filter(h -> h.accept(identity))
             .findFirst()
             .orElseThrow(

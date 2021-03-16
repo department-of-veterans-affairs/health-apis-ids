@@ -4,11 +4,21 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.ids.client.Format.LookupHandler;
 import gov.va.api.health.ids.client.Format.RegistrationHandler;
+import gov.va.api.health.ids.client.Format.TwoWayFormat;
 import java.util.List;
 import java.util.regex.Pattern;
 
 public class PatientIcnFormat {
 
+  /** Return a two way format that matches patient ICNs against the given pattern. */
+  public static Format of(String patientIdPattern) {
+    return TwoWayFormat.builder()
+        .lookupHandler(PatientIcnLookupHandler.of(patientIdPattern))
+        .registrationHandler(new PatientRegistrationHandler())
+        .build();
+  }
+
+  /** Create an MVI PATIENT identity. */
   public static ResourceIdentity identityFor(String patientId) {
     return ResourceIdentity.builder()
         .system("MVI")

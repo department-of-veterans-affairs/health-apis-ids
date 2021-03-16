@@ -4,23 +4,35 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.ids.client.Format.LookupHandler;
 import gov.va.api.health.ids.client.Format.RegistrationHandler;
+import gov.va.api.health.ids.client.Format.TwoWayFormat;
 import java.util.List;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
-public class V2Format {
+public class EncodedIdFormat {
   /**
    * This prefix is the starting marker of V2 ids. IDs that start with this string will be passed to
    * the encoder for decoding. All ids generated during registration will have this prefix.
    */
   public static final String V2_PREFIX = "I2-";
 
+  /** Return a two way format that leverages the given encoder. */
+  public static Format of(String prefix, IdEncoder encoder) {
+    return TwoWayFormat.builder()
+        .lookupHandler(V2LookupHandler.builder().prefix(prefix).encoder(encoder).build())
+        .registrationHandler(
+            V2RegistrationHandler.builder().prefix(prefix).encoder(encoder).build())
+        .build();
+  }
+
   /** This handler uses the encoder to decode V2 style IDs. */
-  @AllArgsConstructor(staticName = "of")
+  @Builder
   public static class V2LookupHandler implements LookupHandler {
 
     /** This is used for registration of all IDs and lookup if encoded IDs. */
     @Getter private final IdEncoder encoder;
+
+    @Getter private final String prefix;
 
     @Override
     public boolean accept(String id) {
@@ -35,11 +47,13 @@ public class V2Format {
   }
 
   /** This handler will emit encoded V2 ids. */
-  @AllArgsConstructor(staticName = "of")
+  @Builder
   public static class V2RegistrationHandler implements RegistrationHandler {
 
     /** This is used for registration of all IDs and lookup if encoded IDs. */
     @Getter private final IdEncoder encoder;
+
+    @Getter private final String prefix;
 
     @Override
     public boolean accept(ResourceIdentity identity) {

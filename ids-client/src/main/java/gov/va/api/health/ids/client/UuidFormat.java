@@ -3,12 +3,20 @@ package gov.va.api.health.ids.client;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.ids.client.Format.LookupHandler;
+import gov.va.api.health.ids.client.Format.LookupOnlyFormat;
 import java.util.List;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * Lookup only format that uses a dedicate IdentityService (usually external) to perform lookups.
+ */
 public class UuidFormat {
+
+  public static Format of(IdentityService delegate) {
+    return LookupOnlyFormat.builder().lookupHandler(UuidLookupHandler.of(delegate)).build();
+  }
 
   /** This handler understands UUID and will delegate lookups. */
   @AllArgsConstructor(staticName = "of")
