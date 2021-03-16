@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  gov.va.api.health.ids.client.RestIdentityServiceClientConfig
+  gov.va.api.health.ids.client.RestIdentityServiceClientConfig,\
+  gov.va.api.health.ids.client.RestIdentityServiceClientProperties
