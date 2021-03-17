@@ -1,5 +1,6 @@
 package gov.va.api.health.ids.client;
 
+import static gov.va.api.health.ids.client.EncodedIdFormat.V2_PREFIX;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -8,7 +9,6 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
 import java.util.List;
-import java.util.StringJoiner;
 import java.util.function.Predicate;
 import lombok.Builder;
 import lombok.Value;
@@ -91,10 +91,7 @@ public class EncodingIdentityServiceTest {
   public void v2IdsAreAlwaysReturnedExceptForPatientsDuringRegistration() {
     /*
      * V2 IDs take the format described below, e.g.
-     * I2-n%2BtRVIJFNsJfd1FXLD0U8s9n3Fen5MLCa8RztnXC9mY%3D
-     *
-     * A simple encryption algorithm such as AES-128 will be used to keep ID sizes from becoming
-     * excessively large
+     * I2-ABC123000
      *
      * For registration (encoding) V2 IDs are always emitted except for Patient resources.
      */
@@ -128,8 +125,7 @@ public class EncodingIdentityServiceTest {
   @Test
   public void v2IdsAreDecoded() {
     /* For lookup, V2 ID management will detect V2 IDs and decode accordingly. */
-    String encoded =
-        EncodingIdentityServiceClient.V2_PREFIX + new FugaziEncoder().encode(anything("abc"));
+    String encoded = V2_PREFIX + new FugaziEncoder().encode(anything("abc"));
     List<ResourceIdentity> actual = ids.lookup(encoded);
     assertThat(actual).containsExactly(anything("abc"));
   }
@@ -148,7 +144,7 @@ public class EncodingIdentityServiceTest {
       this.system = system;
       this.resource = resource;
       this.privateId = privateId;
-      publicId = id -> id.matches(EncodingIdentityServiceClient.V2_PREFIX + "[-_a-zA-Z0-9]+");
+      publicId = id -> id.matches(V2_PREFIX + "[-_a-zA-Z0-9]+");
     }
 
     @Builder(builderMethodName = "withId", builderClassName = "ExpectedRegistrationBuilderWithId")
@@ -172,28 +168,6 @@ public class EncodingIdentityServiceTest {
                       .resource(resource)
                       .identifier(privateId)
                       .build());
-    }
-  }
-
-  static class FugaziEncoder implements IdEncoder {
-
-    @Override
-    public ResourceIdentity decode(String encoded) {
-      String[] parts = encoded.split("-");
-      return ResourceIdentity.builder()
-          .system(parts[0])
-          .resource(parts[1])
-          .identifier(parts[2])
-          .build();
-    }
-
-    @Override
-    public String encode(ResourceIdentity resourceIdentity) {
-      return new StringJoiner("-")
-          .add(resourceIdentity.system())
-          .add(resourceIdentity.resource())
-          .add(resourceIdentity.identifier())
-          .toString();
     }
   }
 }

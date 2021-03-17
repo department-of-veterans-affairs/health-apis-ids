@@ -12,7 +12,8 @@ public class RestIdentityServiceClientConfigTest {
   @Test(expected = IllegalStateException.class)
   public void encodingIdentityServiceClientThrowsExceptionIfNotConfigured() {
     RestTemplate rt = Mockito.mock(RestTemplate.class);
-    new RestIdentityServiceClientConfig(rt, null, null, ".*")
+    new RestIdentityServiceClientConfig(
+            rt, new RestIdentityServiceClientProperties(null, null, ".*"))
         .encodingIdentityServiceClient(Codebook.builder().build());
   }
 
@@ -20,7 +21,8 @@ public class RestIdentityServiceClientConfigTest {
   public void encodingIdentityServiceClientUsesEncodingClientIfPasswordIsSet() {
     RestTemplate rt = Mockito.mock(RestTemplate.class);
     IdentityService ids =
-        new RestIdentityServiceClientConfig(rt, "http://example.com", "secret", ".*")
+        new RestIdentityServiceClientConfig(
+                rt, new RestIdentityServiceClientProperties("http://example.com", "secret", ".*"))
             .encodingIdentityServiceClient(Codebook.builder().build());
     assertThat(ids).isInstanceOf(EncodingIdentityServiceClient.class);
   }
@@ -29,7 +31,8 @@ public class RestIdentityServiceClientConfigTest {
   public void encodingIdentityServiceClientUsesEncodingClientIfPasswordIsSetAndNotUrl() {
     RestTemplate rt = Mockito.mock(RestTemplate.class);
     IdentityService ids =
-        new RestIdentityServiceClientConfig(rt, null, "secret", ".*")
+        new RestIdentityServiceClientConfig(
+                rt, new RestIdentityServiceClientProperties(null, "secret", ".*"))
             .encodingIdentityServiceClient(Codebook.builder().build());
     assertThat(ids).isInstanceOf(EncodingIdentityServiceClient.class);
   }
@@ -38,7 +41,8 @@ public class RestIdentityServiceClientConfigTest {
   public void restIdentityServiceClientCanBeUsed() {
     RestTemplate rt = Mockito.mock(RestTemplate.class);
     IdentityService ids =
-        new RestIdentityServiceClientConfig(rt, "http://example.com", "secret", ".*")
+        new RestIdentityServiceClientConfig(
+                rt, new RestIdentityServiceClientProperties("http://example.com", "secret", ".*"))
             .restIdentityServiceClient();
     assertThat(ids).isInstanceOf(RestIdentityServiceClient.class);
   }
@@ -47,11 +51,13 @@ public class RestIdentityServiceClientConfigTest {
   public void restIdentityServiceClientUsesEncodingClientIfPasswordIsNotSet() {
     RestTemplate rt = Mockito.mock(RestTemplate.class);
     IdentityService ids =
-        new RestIdentityServiceClientConfig(rt, "http://example.com", "", ".*")
+        new RestIdentityServiceClientConfig(
+                rt, new RestIdentityServiceClientProperties("http://example.com", "", ".*"))
             .encodingIdentityServiceClient(Codebook.builder().build());
     assertThat(ids).isInstanceOf(RestIdentityServiceClient.class);
     ids =
-        new RestIdentityServiceClientConfig(rt, "http://example.com", "disabled", ".*")
+        new RestIdentityServiceClientConfig(
+                rt, new RestIdentityServiceClientProperties("http://example.com", "disabled", ".*"))
             .encodingIdentityServiceClient(Codebook.builder().build());
     assertThat(ids).isInstanceOf(RestIdentityServiceClient.class);
   }

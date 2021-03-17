@@ -1,6 +1,6 @@
 package gov.va.api.health.ids.client;
 
-import static gov.va.api.health.ids.client.EncodingIdentityServiceClient.V2_PREFIX;
+import static gov.va.api.health.ids.client.EncodedIdFormat.V2_PREFIX;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import gov.va.api.health.ids.api.ResourceIdentity;

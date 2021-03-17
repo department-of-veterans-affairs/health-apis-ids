@@ -1,12 +1,9 @@
 package gov.va.api.health.ids.client;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.client.EncryptingIdEncoder.Codebook;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -18,33 +15,19 @@ import org.springframework.web.client.RestTemplate;
  *
  * <p>Requires `identityservice.url` to be defined a property.
  */
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 @Configuration
 @Slf4j
 public class RestIdentityServiceClientConfig {
   private final RestTemplate restTemplate;
 
-  private final String url;
+  private RestIdentityServiceClientProperties properties;
 
-  private final String encodingKey;
-
-  private final String patientIdPattern;
-
-  /**
-   * Constructor that includes the value annotations.
-   *
-   * @param url The identity service url
-   * @param encodingKey The encoding key to use
-   * @param patientIdPattern The patient id pattern
-   * @param restTemplate The rest template
-   */
+  /** Constructor that includes the value annotations. */
   public RestIdentityServiceClientConfig(
       @Autowired RestTemplate restTemplate,
-      @Value("${identityservice.url}") String url,
-      @Value("${identityservice.encodingKey:disabled}") String encodingKey,
-      @Value("${identityservice.patientIdPattern:[0-9]{10}V[0-9]{6}}") String patientIdPattern) {
-    this.url = url;
-    this.encodingKey = encodingKey;
-    this.patientIdPattern = patientIdPattern;
+      @Autowired RestIdentityServiceClientProperties properties) {
+    this.properties = properties;
     this.restTemplate = restTemplate;
   }
 
@@ -56,7 +39,7 @@ public class RestIdentityServiceClientConfig {
     return RestIdentityServiceClient.builder()
         .baseRestTemplate(restTemplate)
         .newRestTemplateSupplier(RestTemplate::new)
-        .url(url)
+        .url(properties.getUrl())
         .build();
   }
 
@@ -66,26 +49,37 @@ public class RestIdentityServiceClientConfig {
    */
   @SuppressWarnings("WeakerAccess")
   @Bean
+  @ConditionalOnMissingBean
   @ConditionalOnBean(Codebook.class)
   public IdentityService encodingIdentityServiceClient(@Autowired Codebook codebook) {
-    boolean useEncoder = isNotBlank(encodingKey) && !"disabled".equals(encodingKey);
-    boolean useService = isNotBlank(url);
+    boolean useEncoder = properties.hasEncodingKey();
+    boolean useService = properties.hasUrl();
     if (useEncoder && useService) {
       log.info(
           "Using encoding Identity Service with patient ID pattern '{}'"
               + " and rest Identity Service fallback",
-          patientIdPattern);
+          properties.getPatientIdPattern());
       return EncodingIdentityServiceClient.builder()
-          .encoder(EncryptingIdEncoder.builder().password(encodingKey).codebook(codebook).build())
+          .encoder(
+              EncryptingIdEncoder.builder()
+                  .password(properties.getEncodingKey())
+                  .codebook(codebook)
+                  .build())
           .delegate(createRestIdentityServiceClient())
-          .patientIdPattern(patientIdPattern)
+          .patientIdPattern(properties.getPatientIdPattern())
           .build();
     }
     if (useEncoder) {
-      log.info("Using encoding Identity Service with patient ID pattern '{}'", patientIdPattern);
+      log.info(
+          "Using encoding Identity Service with patient ID pattern '{}'",
+          properties.getPatientIdPattern());
       return EncodingIdentityServiceClient.builder()
-          .encoder(EncryptingIdEncoder.builder().password(encodingKey).codebook(codebook).build())
-          .patientIdPattern(patientIdPattern)
+          .encoder(
+              EncryptingIdEncoder.builder()
+                  .password(properties.getEncodingKey())
+                  .codebook(codebook)
+                  .build())
+          .patientIdPattern(properties.getPatientIdPattern())
           .build();
     }
     if (useService) {
@@ -98,7 +92,7 @@ public class RestIdentityServiceClientConfig {
   /** Create a new IdentityService that uses REST for communication. */
   @SuppressWarnings("WeakerAccess")
   @Bean
-  @ConditionalOnMissingBean(Codebook.class)
+  @ConditionalOnMissingBean({IdentityService.class, Codebook.class})
   public IdentityService restIdentityServiceClient() {
     return createRestIdentityServiceClient();
   }
