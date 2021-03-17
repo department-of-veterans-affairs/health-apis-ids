@@ -31,4 +31,8 @@ public class RestIdentityServiceClientProperties {
   public boolean hasUrl() {
     return isNotBlank(url);
   }
+
+  public boolean isEnabled() {
+    return hasEncodingKey() || hasUrl();
+  }
 }

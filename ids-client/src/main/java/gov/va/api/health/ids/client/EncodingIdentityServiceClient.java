@@ -10,6 +10,7 @@ import gov.va.api.health.ids.client.Format.RegistrationHandler;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
 import java.util.List;
 import java.util.Optional;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -31,6 +32,7 @@ import lombok.Getter;
  * </ul>
  */
 @Getter
+@AllArgsConstructor(staticName = "of")
 public class EncodingIdentityServiceClient implements IdentityService {
 
   /**
@@ -48,10 +50,6 @@ public class EncodingIdentityServiceClient implements IdentityService {
             PatientIcnFormat.of(patientIdPattern),
             EncodedIdFormat.of(EncodedIdFormat.V2_PREFIX, encoder),
             UuidFormat.of(delegate)));
-  }
-
-  public EncodingIdentityServiceClient(List<Format> formats) {
-    this.formats = formats;
   }
 
   @Override
