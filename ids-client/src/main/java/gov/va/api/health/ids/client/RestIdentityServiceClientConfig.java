@@ -113,7 +113,7 @@ public class RestIdentityServiceClientConfig {
       return IdsClientProperties.from(deprecatedProperties);
     }
 
-    throw new IllegalStateException(
+    throw new IllegalArgumentException(
         String.format("Missing configuration. See %s", IdsClientProperties.class.getName()));
   }
 }

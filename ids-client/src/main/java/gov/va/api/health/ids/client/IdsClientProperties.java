@@ -53,6 +53,7 @@ public class IdsClientProperties {
         .build();
   }
 
+  /** Lazy getter with default disabled configuration. */
   public EncodedIdsFormatProperties getEncodedIds() {
     if (encodedIds == null) {
       encodedIds = new EncodedIdsFormatProperties();
@@ -60,6 +61,7 @@ public class IdsClientProperties {
     return encodedIds;
   }
 
+  /** Lazy getter with default disabled configuration. */
   public PatientIcnFormatProperties getPatientIcn() {
     if (patientIcn == null) {
       patientIcn = new PatientIcnFormatProperties();
@@ -67,6 +69,7 @@ public class IdsClientProperties {
     return patientIcn;
   }
 
+  /** Lazy getter with default disabled configuration. */
   public UuidFormatProperties getUuid() {
     if (uuid == null) {
       uuid = new UuidFormatProperties();
@@ -80,7 +83,7 @@ public class IdsClientProperties {
 
   @AssertTrue
   public boolean isValid() {
-    return getPatientIcn().isValid() && getPatientIcn().isValid() && getUuid().isValid();
+    return getPatientIcn().isValid() && getEncodedIds().isValid() && getUuid().isValid();
   }
 
   @Data
