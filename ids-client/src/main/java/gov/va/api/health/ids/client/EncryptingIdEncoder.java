@@ -140,6 +140,10 @@ public class EncryptingIdEncoder implements IdEncoder {
       }
     }
 
+    public static Codebook empty() {
+      return new Codebook(null);
+    }
+
     String restore(String in) {
       return shortToLong.getOrDefault(in, in);
     }

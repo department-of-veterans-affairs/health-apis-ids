@@ -7,6 +7,7 @@ import gov.va.api.health.ids.client.Format.RegistrationHandler;
 import gov.va.api.health.ids.client.Format.TwoWayFormat;
 import java.util.List;
 import java.util.regex.Pattern;
+import lombok.Getter;
 
 public class PatientIcnFormat {
   /** Create an MVI PATIENT identity. */
@@ -31,7 +32,7 @@ public class PatientIcnFormat {
    * encoded or decoded.
    */
   static class PatientIcnLookupHandler implements LookupHandler {
-    private final Pattern icnPattern;
+    @Getter private final Pattern icnPattern;
 
     PatientIcnLookupHandler(String patientIdPattern) {
       icnPattern = Pattern.compile(patientIdPattern);

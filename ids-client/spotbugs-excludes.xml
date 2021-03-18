@@ -12,4 +12,12 @@
       <Bug pattern="STATIC_IV"/>
     </Or>
   </Match>
+  <!--
+    The lombok generated hashCode/equals method check for null even though there are
+    lazy initializers in the getters.
+  -->
+  <Match>
+    <Class name="gov.va.api.health.ids.client.IdsClientProperties"/>
+    <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
+  </Match>
 </FindBugsFilter>

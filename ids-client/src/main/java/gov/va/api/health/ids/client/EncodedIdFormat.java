@@ -16,6 +16,8 @@ public class EncodedIdFormat {
    */
   public static final String V2_PREFIX = "I2-";
 
+  public static final String V3_PREFIX = "I3-";
+
   /** Return a two way format that leverages the given encoder. */
   public static Format of(String prefix, IdEncoder encoder) {
     return TwoWayFormat.builder()
@@ -36,12 +38,12 @@ public class EncodedIdFormat {
 
     @Override
     public boolean accept(String id) {
-      return id.startsWith(V2_PREFIX);
+      return id.startsWith(prefix());
     }
 
     @Override
     public List<ResourceIdentity> lookup(String id) {
-      String unversionedId = id.substring(V2_PREFIX.length());
+      String unversionedId = id.substring(prefix().length());
       return List.of(encoder().decode(unversionedId));
     }
   }
@@ -63,7 +65,7 @@ public class EncodedIdFormat {
     @Override
     public Registration register(ResourceIdentity identity) {
       return Registration.builder()
-          .uuid(V2_PREFIX + encoder().encode(identity))
+          .uuid(prefix() + encoder().encode(identity))
           .resourceIdentities(List.of(identity.toBuilder().build()))
           .build();
     }

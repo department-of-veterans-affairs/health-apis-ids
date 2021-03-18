@@ -2,9 +2,10 @@ package gov.va.api.health.ids.client;
 
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.client.EncryptingIdEncoder.Codebook;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,85 +16,104 @@ import org.springframework.web.client.RestTemplate;
  *
  * <p>Requires `identityservice.url` to be defined a property.
  */
-@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 @Configuration
 @Slf4j
 public class RestIdentityServiceClientConfig {
   private final RestTemplate restTemplate;
 
-  private RestIdentityServiceClientProperties properties;
+  private final IdsClientProperties properties;
 
   /** Constructor that includes the value annotations. */
+  @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+  @Autowired
   public RestIdentityServiceClientConfig(
       @Autowired RestTemplate restTemplate,
-      @Autowired RestIdentityServiceClientProperties properties) {
-    this.properties = properties;
+      @Autowired(required = false) IdsClientProperties preferredProperties,
+      @Autowired(required = false) RestIdentityServiceClientProperties deprecatedProperties) {
     this.restTemplate = restTemplate;
+    properties = selectBestPropertiesOrDie(preferredProperties, deprecatedProperties);
   }
 
-  private RestIdentityServiceClient createRestIdentityServiceClient() {
-    /*
-     * This is extracted with out the Spring annotation so it can be re-used without causing an
-     * 'unsatisfied bean exception'.
-     */
-    return RestIdentityServiceClient.builder()
-        .baseRestTemplate(restTemplate)
-        .newRestTemplateSupplier(RestTemplate::new)
-        .url(properties.getUrl())
-        .build();
+  @Deprecated
+  public RestIdentityServiceClientConfig(
+      RestTemplate restTemplate, RestIdentityServiceClientProperties deprecatedProperties) {
+    this(restTemplate, null, deprecatedProperties);
   }
 
   /**
    * Create a new IdentityService that uses encoded IDs and will fallback REST for communication for
    * legacy IDs.
    */
-  @SuppressWarnings("WeakerAccess")
+  @SuppressWarnings({"WeakerAccess", "SpringJavaInjectionPointsAutowiringInspection"})
   @Bean
   @ConditionalOnMissingBean
-  @ConditionalOnBean(Codebook.class)
-  public IdentityService encodingIdentityServiceClient(@Autowired Codebook codebook) {
-    boolean useEncoder = properties.hasEncodingKey();
-    boolean useService = properties.hasUrl();
-    if (useEncoder && useService) {
-      log.info(
-          "Using encoding Identity Service with patient ID pattern '{}'"
-              + " and rest Identity Service fallback",
-          properties.getPatientIdPattern());
-      return EncodingIdentityServiceClient.builder()
-          .encoder(
-              EncryptingIdEncoder.builder()
-                  .password(properties.getEncodingKey())
-                  .codebook(codebook)
-                  .build())
-          .delegate(createRestIdentityServiceClient())
-          .patientIdPattern(properties.getPatientIdPattern())
-          .build();
+  public IdentityService encodingIdentityServiceClient(
+      @Autowired(required = false) Codebook maybeCodebook) {
+
+    List<Format> formats = new ArrayList<>(4);
+    if (properties.getPatientIcn().isEnabled()) {
+      log.info("Supporting patient ICN matching {}", properties.getPatientIcn().getIdPattern());
+      formats.add(PatientIcnFormat.of(properties.getPatientIcn().getIdPattern()));
     }
-    if (useEncoder) {
-      log.info(
-          "Using encoding Identity Service with patient ID pattern '{}'",
-          properties.getPatientIdPattern());
-      return EncodingIdentityServiceClient.builder()
-          .encoder(
-              EncryptingIdEncoder.builder()
-                  .password(properties.getEncodingKey())
-                  .codebook(codebook)
-                  .build())
-          .patientIdPattern(properties.getPatientIdPattern())
-          .build();
+
+    if (properties.getEncodedIds().isEnabled()) {
+      log.info("Using {} codebook", maybeCodebook == null ? "empty" : "provided");
+      EncryptingIdEncoder encoder =
+          EncryptingIdEncoder.builder()
+              .password(properties.getEncodedIds().getEncodingKey())
+              .codebook(maybeCodebook == null ? Codebook.empty() : maybeCodebook)
+              .build();
+      if (properties.getEncodedIds().isI3Enabled()) {
+        log.info("Supporting I3 ids");
+        formats.add(EncodedIdFormat.of(EncodedIdFormat.V3_PREFIX, encoder));
+      }
+      if (properties.getEncodedIds().isI2Enabled()) {
+        log.info("Supporting I2 ids");
+        formats.add(EncodedIdFormat.of(EncodedIdFormat.V2_PREFIX, encoder));
+      }
     }
-    if (useService) {
-      log.info("Using rest Identity Service Client.");
-      return createRestIdentityServiceClient();
+
+    if (properties.getUuid().isEnabled()) {
+      log.info("Support UUIDs from service at {}", properties.getUuid().getUrl());
+      formats.add(
+          UuidFormat.of(
+              RestIdentityServiceClient.builder()
+                  .baseRestTemplate(restTemplate)
+                  .newRestTemplateSupplier(RestTemplate::new)
+                  .url(properties.getUuid().getUrl())
+                  .build()));
     }
-    throw new IllegalStateException("Identity service is not configured.");
+
+    return EncodingIdentityServiceClient.of(formats);
   }
 
   /** Create a new IdentityService that uses REST for communication. */
   @SuppressWarnings("WeakerAccess")
-  @Bean
-  @ConditionalOnMissingBean({IdentityService.class, Codebook.class})
+  @Deprecated
   public IdentityService restIdentityServiceClient() {
-    return createRestIdentityServiceClient();
+    return RestIdentityServiceClient.builder()
+        .baseRestTemplate(restTemplate)
+        .newRestTemplateSupplier(RestTemplate::new)
+        .url(properties.getUuid().getUrl())
+        .build();
+  }
+
+  private IdsClientProperties selectBestPropertiesOrDie(
+      IdsClientProperties preferredProperties,
+      RestIdentityServiceClientProperties deprecatedProperties) {
+    if (preferredProperties != null
+        && preferredProperties.isValid()
+        && preferredProperties.isEnabled()) {
+      return preferredProperties;
+    }
+    if (deprecatedProperties != null && deprecatedProperties.isEnabled()) {
+      log.warn("Use of identityservice properties is discouraged.");
+      log.warn(
+          "Update to preferred ids-client properties. See {}", IdsClientProperties.class.getName());
+      return IdsClientProperties.from(deprecatedProperties);
+    }
+
+    throw new IllegalArgumentException(
+        String.format("Missing configuration. See %s", IdsClientProperties.class.getName()));
   }
 }
