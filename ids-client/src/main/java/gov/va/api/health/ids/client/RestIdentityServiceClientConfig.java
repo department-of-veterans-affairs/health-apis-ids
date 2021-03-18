@@ -1,5 +1,12 @@
 package gov.va.api.health.ids.client;
 
+import static gov.va.api.health.ids.client.EncryptingIdEncoder.BinaryRepresentations.compressedAscii;
+import static gov.va.api.health.ids.client.EncryptingIdEncoder.BinaryRepresentations.utf8;
+import static gov.va.api.health.ids.client.EncryptingIdEncoder.EncryptionMechanisms.aes;
+import static gov.va.api.health.ids.client.EncryptingIdEncoder.EncryptionMechanisms.blowfish;
+import static gov.va.api.health.ids.client.EncryptingIdEncoder.UrlSafeEncodings.base32;
+import static gov.va.api.health.ids.client.EncryptingIdEncoder.UrlSafeEncodings.base62;
+
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.client.EncryptingIdEncoder.Codebook;
 import java.util.ArrayList;
@@ -58,18 +65,32 @@ public class RestIdentityServiceClientConfig {
 
     if (properties.getEncodedIds().isEnabled()) {
       log.info("Using {} codebook", maybeCodebook == null ? "empty" : "provided");
-      EncryptingIdEncoder encoder =
-          EncryptingIdEncoder.builder()
-              .password(properties.getEncodedIds().getEncodingKey())
-              .codebook(maybeCodebook == null ? Codebook.empty() : maybeCodebook)
-              .build();
+      Codebook codebook = maybeCodebook == null ? Codebook.empty() : maybeCodebook;
       if (properties.getEncodedIds().isI3Enabled()) {
         log.info("Supporting I3 ids");
-        formats.add(EncodedIdFormat.of(EncodedIdFormat.V3_PREFIX, encoder));
+        formats.add(
+            EncodedIdFormat.of(
+                EncodedIdFormat.V3_PREFIX,
+                EncryptingIdEncoder.builder()
+                    .password(properties.getEncodedIds().getEncodingKey())
+                    .codebook(codebook)
+                    .textBinaryRepresentation(compressedAscii())
+                    .encryptionMechanism(blowfish())
+                    .encoding(base62())
+                    .build()));
       }
       if (properties.getEncodedIds().isI2Enabled()) {
         log.info("Supporting I2 ids");
-        formats.add(EncodedIdFormat.of(EncodedIdFormat.V2_PREFIX, encoder));
+        formats.add(
+            EncodedIdFormat.of(
+                EncodedIdFormat.V2_PREFIX,
+                EncryptingIdEncoder.builder()
+                    .password(properties.getEncodedIds().getEncodingKey())
+                    .codebook(codebook)
+                    .textBinaryRepresentation(utf8())
+                    .encryptionMechanism(aes())
+                    .encoding(base32())
+                    .build()));
       }
     }
 

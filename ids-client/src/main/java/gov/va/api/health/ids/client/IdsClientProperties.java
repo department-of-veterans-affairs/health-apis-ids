@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -92,7 +93,7 @@ public class IdsClientProperties {
   @Builder
   @Validated
   public static class EncodedIdsFormatProperties {
-    private String encodingKey;
+    @ToString.Exclude private String encodingKey;
     @Builder.Default private boolean i2Enabled = false;
     @Builder.Default private boolean i3Enabled = false;
 

@@ -8,10 +8,12 @@ import java.util.List;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.experimental.UtilityClass;
 
 /**
  * Lookup only format that uses a dedicate IdentityService (usually external) to perform lookups.
  */
+@UtilityClass
 public class UuidFormat {
 
   public static Format of(IdentityService delegate) {

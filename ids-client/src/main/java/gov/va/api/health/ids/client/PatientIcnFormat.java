@@ -8,7 +8,9 @@ import gov.va.api.health.ids.client.Format.TwoWayFormat;
 import java.util.List;
 import java.util.regex.Pattern;
 import lombok.Getter;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class PatientIcnFormat {
   /** Create an MVI PATIENT identity. */
   public static ResourceIdentity identityFor(String patientId) {
@@ -44,7 +46,7 @@ public class PatientIcnFormat {
 
     @Override
     public boolean accept(String id) {
-      return icnPattern.matcher(id).matches();
+      return icnPattern().matcher(id).matches();
     }
 
     @Override

@@ -8,7 +8,9 @@ import gov.va.api.health.ids.client.Format.TwoWayFormat;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class EncodedIdFormat {
   /**
    * This prefix is the starting marker of V2 ids. IDs that start with this string will be passed to
