@@ -10,13 +10,14 @@ findToolsJar() {
 
 
 findToolsJar
-[ -z "$IDS_TOOLS_JAR" ] && mvn clean install -P"!standard" -DskipTests -f $BASE_DIR
-findToolsJar
+
+if [ -z "$IDS_TOOLS_JAR" ] 
+then
+  mvn clean install -P"!standard" -DskipTests -f $BASE_DIR
+  findToolsJar
+fi
+
 [ -z "$IDS_TOOLS_JAR" ] && echo "Tools jar still missing... giving up" && exit 1
-
-
-
-
 
 [ -n "$JAVA_HOME" ] && JAVA_EXE="$JAVA_HOME/bin/java" || JAVA_EXE=java
 
@@ -49,12 +50,8 @@ then
   CLASSPATH=$(cygpath -pdm "$CLASSPATH")
 fi
 
-
 $JAVA_EXE \
   -Dpassword="$IDS_PASSWORD" \
   -cp "${CLASSPATH}" \
   gov.va.api.health.ids.client.Tools \
   $@
-
-
-

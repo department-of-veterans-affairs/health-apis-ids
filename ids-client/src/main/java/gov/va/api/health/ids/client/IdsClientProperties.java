@@ -93,6 +93,7 @@ public class IdsClientProperties {
   @Builder
   @Validated
   public static class EncodedIdsFormatProperties {
+
     @ToString.Exclude private String encodingKey;
     @Builder.Default private boolean i2Enabled = false;
     @Builder.Default private boolean i3Enabled = false;

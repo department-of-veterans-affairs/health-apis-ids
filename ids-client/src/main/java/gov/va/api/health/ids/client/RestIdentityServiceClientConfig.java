@@ -65,6 +65,7 @@ public class RestIdentityServiceClientConfig {
 
     if (properties.getEncodedIds().isEnabled()) {
       log.info("Using {} codebook", maybeCodebook == null ? "empty" : "provided");
+
       Codebook codebook = maybeCodebook == null ? Codebook.empty() : maybeCodebook;
       if (properties.getEncodedIds().isI3Enabled()) {
         log.info("Supporting I3 ids");
