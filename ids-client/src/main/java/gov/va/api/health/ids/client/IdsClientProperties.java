@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -33,7 +34,7 @@ public class IdsClientProperties {
   private UuidFormatProperties uuid;
 
   /** Convert the old deprecated style properties into the new properties. */
-  public static IdsClientProperties from(RestIdentityServiceClientProperties oldStyle) {
+  public static IdsClientProperties from(@NonNull RestIdentityServiceClientProperties oldStyle) {
     return IdsClientProperties.builder()
         .patientIcn(
             PatientIcnFormatProperties.builder()
@@ -99,12 +100,12 @@ public class IdsClientProperties {
     @Builder.Default private boolean i3Enabled = false;
 
     public boolean isEnabled() {
-      return i2Enabled || i3Enabled;
+      return isI2Enabled() || isI3Enabled();
     }
 
     @AssertTrue
     public boolean isValid() {
-      return !isEnabled() || isNotBlank(encodingKey);
+      return !isEnabled() || isNotBlank(getEncodingKey());
     }
   }
 
@@ -119,7 +120,7 @@ public class IdsClientProperties {
 
     @AssertTrue
     public boolean isValid() {
-      return !isEnabled() || isNotBlank(idPattern);
+      return !isEnabled() || isNotBlank(getIdPattern());
     }
   }
 
@@ -134,7 +135,7 @@ public class IdsClientProperties {
 
     @AssertTrue
     public boolean isValid() {
-      return !isEnabled() || isNotBlank(url);
+      return !isEnabled() || isNotBlank(getUrl());
     }
   }
 }

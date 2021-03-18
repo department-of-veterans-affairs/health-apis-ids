@@ -31,6 +31,17 @@ class IdsClientPropertiesTest {
   }
 
   public static Stream<Arguments> validAndEnabledCombinations() {
+    /*
+     * boolean patientEnabled,
+     * String pattern,
+     * boolean i2Enabled,
+     * boolean i3enabled,
+     * String encodingKey,
+     * boolean uuidEnabled,
+     * String url,
+     * boolean expectedValid,
+     * boolean expectedEnabled
+     */
     return Stream.of(
         // all on
         arguments(true, "[0-9]+", true, true, "secret", true, "http://uuid.com", true, true),
