@@ -18,7 +18,7 @@ class EncodingIdentityServiceClientTest {
 
   @Test
   void vistaFhirQueryLongIdUseCase() {
-    // V:OB:N5000000347+673+CH;6919171.919997;14
+    // V:OB:N5000000347+673+LCH;6919171.919997;14
     IdsClientProperties properties =
         IdsClientProperties.builder()
             .encodedIds(
@@ -41,7 +41,7 @@ class EncodingIdentityServiceClientTest {
                 ResourceIdentity.builder()
                     .system("V")
                     .resource("OB")
-                    .identifier("N5000000347+673+CH;6919171.919997;14")
+                    .identifier("N5000000347+673+LCH;6919171.919997;14")
                     .build()));
 
     String uuid = registrations.get(0).uuid();
