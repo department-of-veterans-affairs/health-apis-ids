@@ -6,10 +6,11 @@
     that can be safely used in URLs.
   -->
   <Match>
-    <Class name="gov.va.api.health.ids.client.EncryptingIdEncoder$CipherPool"/>
+    <Class name="~gov.va.api.health.ids.client.EncryptingIdEncoder\$.*"/>
     <Or>
       <Bug pattern="CIPHER_INTEGRITY"/>
       <Bug pattern="STATIC_IV"/>
+      <Bug pattern="PADDING_ORACLE"/>
     </Or>
   </Match>
   <!--

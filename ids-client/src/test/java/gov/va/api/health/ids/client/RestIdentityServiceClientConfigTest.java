@@ -35,6 +35,7 @@ public class RestIdentityServiceClientConfigTest {
   @Mock RestTemplate rt;
 
   public static Stream<Arguments> createWithFormats() {
+    // boolean patientEnabled, boolean i3Enabled, boolean i2Enabled, boolean uuidEnabled
     final boolean o = true;
     final boolean x = false;
     return Stream.of(

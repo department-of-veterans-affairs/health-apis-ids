@@ -7,6 +7,7 @@ import gov.va.api.health.ids.client.IdsClientProperties.EncodedIdsFormatProperti
 import gov.va.api.health.ids.client.IdsClientProperties.PatientIcnFormatProperties;
 import gov.va.api.health.ids.client.IdsClientProperties.UuidFormatProperties;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -30,6 +31,17 @@ class IdsClientPropertiesTest {
   }
 
   public static Stream<Arguments> validAndEnabledCombinations() {
+    /*
+     * boolean patientEnabled,
+     * String pattern,
+     * boolean i2Enabled,
+     * boolean i3enabled,
+     * String encodingKey,
+     * boolean uuidEnabled,
+     * String url,
+     * boolean expectedValid,
+     * boolean expectedEnabled
+     */
     return Stream.of(
         // all on
         arguments(true, "[0-9]+", true, true, "secret", true, "http://uuid.com", true, true),
@@ -48,6 +60,13 @@ class IdsClientPropertiesTest {
         );
   }
 
+  @Test
+  void defaultInstancesIsValidAndNotEnabled() {
+    var p = new EncodedIdsFormatProperties();
+    assertThat(p.isValid()).as("valid").isTrue();
+    assertThat(p.isEnabled()).as("enabled").isFalse();
+  }
+
   @ParameterizedTest
   @MethodSource
   void fromRestIdentityServiceClientProperties(RestIdentityServiceClientProperties old) {
@@ -61,6 +80,23 @@ class IdsClientPropertiesTest {
 
     assertThat(p.getUuid().isEnabled()).isEqualTo(old.hasUrl());
     assertThat(p.getUuid().getUrl()).isEqualTo(old.getUrl());
+  }
+
+  @Test
+  void toStringDoesNotLeakPassword() {
+    var p =
+        IdsClientProperties.builder()
+            .patientIcn(
+                PatientIcnFormatProperties.builder().enabled(true).idPattern("[0-9]+").build())
+            .encodedIds(
+                EncodedIdsFormatProperties.builder()
+                    .encodingKey("SECRET")
+                    .i2Enabled(true)
+                    .i3Enabled(true)
+                    .build())
+            .uuid(UuidFormatProperties.builder().enabled(true).url("http://whatever.com").build())
+            .build();
+    assertThat(p.toString()).doesNotContain("SECRET");
   }
 
   @ParameterizedTest
