@@ -7,7 +7,7 @@
     <version>7.0.23</version>
   </parent>
   <artifactId>ids-parent</artifactId>
-  <version>3.0.10-SNAPSHOT</version>
+  <version>3.0.10</version>
   <packaging>pom</packaging>
   <modules>
     <module>ids-api</module>
