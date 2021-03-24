@@ -1,13 +1,30 @@
 #!/usr/bin/env bash
-
-
 BASE_DIR=$(dirname $(readlink -f $0))
 
+usage() {
+cat<<EOF
+$0 [options] <encoded-id>|<system> <resource> <id>
+
+Encode or decode the given ID.
+
+Options:
+-p, --password <secret>
+  The password to use when encoding or decoding the ID.
+-m, --mapping <jar>
+  A jar with a Codebook Supplier that will be used to expand/compress ID components.
+-2, --i2
+  Enable only I2 support
+-3, --i3
+  Enable only I3 support
+
+${1:-}
+EOF
+exit 1
+}
 
 findToolsJar() {
   IDS_TOOLS_JAR=$(find $BASE_DIR/target -name "ids-client-*-tools.jar")
 }
-
 
 findToolsJar
 
@@ -21,9 +38,12 @@ fi
 
 [ -n "$JAVA_HOME" ] && JAVA_EXE="$JAVA_HOME/bin/java" || JAVA_EXE=java
 
+
+I2=${I2:-true}
+I3=${I3:-true}
 ARGS=$(getopt -n $(basename ${0}) \
-  -l "debug,help,mapping:,password:" \
-    -o "hm:p:" -- "$@")
+  -l "debug,help,mapping:,password:,i2,i3" \
+    -o "hm:p:23" -- "$@")
 [ $? != 0 ] && usage
 eval set -- "$ARGS"
 while true
@@ -32,6 +52,8 @@ do
     --debug) set -x;;
     -p|--password) export IDS_PASSWORD="$2";;
     -m|--mapping) export IDS_MAPPING_JAR="$2";;
+    -3|--i3) I2=false; I3=true;;
+    -2|--i2) I2=true; I3=false;;
     -h|--help) usage "halp! what this do?";;
     --) shift;break;;
   esac
@@ -39,9 +61,7 @@ do
 done
 
 
-[ -z "$IDS_PASSWORD" ] && echo "Password not specified" && exit 1
-
-[ -z "$IDS_MAPPING_JAR" ] && echo "Mapping not specified" && exit 1
+[ -z "$IDS_PASSWORD" ] && usage "Password not specified"
 
 CLASSPATH="${IDS_TOOLS_JAR}:${IDS_MAPPING_JAR}"
 
@@ -51,7 +71,9 @@ then
 fi
 
 $JAVA_EXE \
-  -Dpassword="$IDS_PASSWORD" \
   -cp "${CLASSPATH}" \
+  -Dpassword="$IDS_PASSWORD" \
+  -Di2=$I2 \
+  -Di3=$I3 \
   gov.va.api.health.ids.client.Tools \
   $@
