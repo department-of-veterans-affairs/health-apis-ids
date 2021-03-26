@@ -40,12 +40,13 @@ public class AsciiCompressor {
      * will have had to allocated 16 bits. We'll need to ignore that remaining two bits in the last
      * byte.
      */
-    int maxPossibleBitsUsed = 8 * sevenBitChars.length;
-    int remainderBitsNotUsed = sevenBitChars.length % 7;
-    int numberOfUsedBits = maxPossibleBitsUsed - remainderBitsNotUsed;
-    StringBuilder decompressedMessage = new StringBuilder(numberOfUsedBits / 7);
-    for (int currentBit = 0; currentBit < numberOfUsedBits; currentBit += 7) {
-      char character = (char) bits.get(currentBit, currentBit + 7).toByteArray()[0];
+    StringBuilder decompressedMessage = new StringBuilder(sevenBitChars.length * 8 / 7 + 1);
+    for (int currentBit = 0; currentBit < bits.size(); currentBit += 7) {
+      byte[] bytes = bits.get(currentBit, currentBit + 7).toByteArray();
+      if (bytes.length == 0) {
+        break;
+      }
+      char character = (char) bytes[0];
       decompressedMessage.append(character);
     }
     return decompressedMessage.toString();
