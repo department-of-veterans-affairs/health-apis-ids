@@ -10,11 +10,19 @@ class AsciiCompressorTest {
   @ParameterizedTest
   @ValueSource(
       strings = {
+        "@\001@\001", // creates a 0 second byte
+        "N1011537977V693883+673+LCH;6929384.839997;14xxx",
+        "0000000",
         "a",
+        "ab",
         "abc",
+        "abcd",
+        "abcde",
+        "abcdef",
+        "abcdefg",
         "abcdefgh",
-        "abcdefghe",
-        "abcdefghefgh",
+        "abcdefghi",
+        "abcdefghij",
         "01234567890123456789",
         "V:OB:N5000000347+673+CH;6919171.919997;14",
         "111 222 333 444 555 666 777",
