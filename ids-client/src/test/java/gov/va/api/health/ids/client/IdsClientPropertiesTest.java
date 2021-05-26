@@ -14,22 +14,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class IdsClientPropertiesTest {
 
-  public static Stream<Arguments> fromRestIdentityServiceClientProperties() {
-    return Stream.of(
-        arguments(
-            RestIdentityServiceClientProperties.builder()
-                .encodingKey("secret")
-                .patientIdPattern("[0-9]+")
-                .url("http://old.com")
-                .build()),
-        arguments(
-            RestIdentityServiceClientProperties.builder()
-                .encodingKey(null)
-                .patientIdPattern("[0-9]+")
-                .url(null)
-                .build()));
-  }
-
   public static Stream<Arguments> validAndEnabledCombinations() {
     /*
      * boolean patientEnabled,
@@ -42,22 +26,25 @@ class IdsClientPropertiesTest {
      * boolean expectedValid,
      * boolean expectedEnabled
      */
-    return Stream.of(
-        // all on
-        arguments(true, "[0-9]+", true, true, "secret", true, "http://uuid.com", true, true),
-        // each one off
+    return Stream.of( // all on
+        arguments(
+            true,
+            "[0-9]+",
+            true,
+            true,
+            "secret",
+            true,
+            "http://uuid.com",
+            true,
+            true), // each one off
         arguments(false, null, true, true, "secret", true, "http://uuid.com", true, true),
         arguments(true, "[0-9]+", false, false, null, true, "http://uuid.com", true, true),
-        arguments(true, "[0-9]+", true, true, "secret", false, null, true, true),
-        // all off
-        arguments(false, null, false, false, null, false, null, true, false),
-        // each one on, but invalid
+        arguments(true, "[0-9]+", true, true, "secret", false, null, true, true), // all off
+        arguments(
+            false, null, false, false, null, false, null, true, false), // each one on, but invalid
         arguments(true, null, true, true, "secret", true, "http://uuid.com", false, true),
         arguments(true, "[0-9]+", true, true, null, true, "http://uuid.com", false, true),
-        arguments(true, "[0-9]+", true, true, "secret", true, null, false, true)
-
-        //
-        );
+        arguments(true, "[0-9]+", true, true, "secret", true, null, false, true));
   }
 
   @Test
@@ -67,19 +54,12 @@ class IdsClientPropertiesTest {
     assertThat(p.isEnabled()).as("enabled").isFalse();
   }
 
-  @ParameterizedTest
-  @MethodSource
-  void fromRestIdentityServiceClientProperties(RestIdentityServiceClientProperties old) {
-    IdsClientProperties p = IdsClientProperties.from(old);
-    assertThat(p.getPatientIcn().isEnabled()).isTrue();
-    assertThat(p.getPatientIcn().getIdPattern()).isEqualTo(old.getPatientIdPattern());
-
-    assertThat(p.getEncodedIds().isI2Enabled()).isTrue();
-    assertThat(p.getEncodedIds().isI3Enabled()).isFalse();
-    assertThat(p.getEncodedIds().getEncodingKey()).isEqualTo(old.getEncodingKey());
-
-    assertThat(p.getUuid().isEnabled()).isEqualTo(old.hasUrl());
-    assertThat(p.getUuid().getUrl()).isEqualTo(old.getUrl());
+  @Test
+  void lazyInitializers() {
+    var empty = new IdsClientProperties();
+    assertThat(empty.getPatientIcn()).isNotNull();
+    assertThat(empty.getEncodedIds()).isNotNull();
+    assertThat(empty.getUuid()).isNotNull();
   }
 
   @Test

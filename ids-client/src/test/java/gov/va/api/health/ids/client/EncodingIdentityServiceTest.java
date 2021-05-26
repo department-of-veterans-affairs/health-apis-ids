@@ -2,6 +2,7 @@ package gov.va.api.health.ids.client;
 
 import static gov.va.api.health.ids.client.EncodedIdFormat.V2_PREFIX;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.ids.api.IdentityService;
@@ -12,8 +13,8 @@ import java.util.List;
 import java.util.function.Predicate;
 import lombok.Builder;
 import lombok.Value;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -22,7 +23,7 @@ public class EncodingIdentityServiceTest {
 
   private EncodingIdentityServiceClient ids;
 
-  @Before
+  @BeforeEach
   public void _init() {
     MockitoAnnotations.initMocks(this);
     ids =
@@ -37,14 +38,14 @@ public class EncodingIdentityServiceTest {
     return ResourceIdentity.builder().system("CDW").resource("ANYTHING").identifier(id).build();
   }
 
-  @Test(expected = BadId.class)
+  @Test
   public void exceptionsAreThrownForIdsWithUnknownFormats() {
     /*
      * For lookup, V2 ID management throw an error, when the look up value is not a full ICN, V1 ID (type 5 UUID), or
      * V2 ID.
      */
     String mysteryId = "12345";
-    ids.lookup(mysteryId);
+    assertThatExceptionOfType(BadId.class).isThrownBy(() -> ids.lookup(mysteryId));
   }
 
   @Test

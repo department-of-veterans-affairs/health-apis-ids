@@ -9,8 +9,8 @@ import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.sentinel.categories.Local;
 import java.util.List;
 import java.util.UUID;
-import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 public class IdsIT {
   private TestClient client = TestClients.ids();

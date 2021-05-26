@@ -1,6 +1,8 @@
 package gov.va.api.health.ids.client;
 
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
+import org.junit.jupiter.api.Test;
 
 public class ToolsTest {
 
@@ -24,8 +26,9 @@ public class ToolsTest {
     }
   }
 
-  @Test(expected = Tools.MissingProperty.class)
+  @Test
   public void missingPropertyIsThrown() {
-    Tools.main(args("CDW", "MEDICATION", "123456890"));
+    assertThatExceptionOfType(Tools.MissingProperty.class)
+        .isThrownBy(() -> Tools.main(args("CDW", "MEDICATION", "123456890")));
   }
 }

@@ -98,7 +98,7 @@ public class Tools {
                     .build())
             .uuid(UuidFormatProperties.builder().enabled(false).build())
             .build();
-    var config = new RestIdentityServiceClientConfig(null, properties, null);
+    var config = new RestIdentityServiceClientConfig(null, properties);
     Optional<CodebookSupplier> codebooks = ServiceLoader.load(CodebookSupplier.class).findFirst();
     return config.encodingIdentityServiceClient(codebooks.orElse(Codebook::empty).get());
   }
