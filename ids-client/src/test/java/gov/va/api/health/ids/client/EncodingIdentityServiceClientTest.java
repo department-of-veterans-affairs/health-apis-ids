@@ -1,6 +1,7 @@
 package gov.va.api.health.ids.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
@@ -17,6 +18,21 @@ import org.springframework.web.client.RestTemplate;
 class EncodingIdentityServiceClientTest {
 
   @Test
+  void registerWithNoFormatsDiesAHorribleDeath() {
+    assertThatExceptionOfType(IllegalStateException.class)
+        .isThrownBy(
+            () ->
+                EncodingIdentityServiceClient.of(List.of())
+                    .register(
+                        List.of(
+                            ResourceIdentity.builder()
+                                .system("UNK")
+                                .resource("UNK")
+                                .identifier("UNK")
+                                .build())));
+  }
+
+  @Test
   void vistaFhirQueryLongIdUseCase() {
     // V:OB:N5000000347+673+LCH;6919171.919997;14
     IdsClientProperties properties =
@@ -31,8 +47,7 @@ class EncodingIdentityServiceClientTest {
     RestTemplate rt = Mockito.mock(RestTemplate.class);
     Codebook codebook = Codebook.builder().map(List.of()).build();
     IdentityService i =
-        new RestIdentityServiceClientConfig(rt, properties, null)
-            .encodingIdentityServiceClient(codebook);
+        new RestIdentityServiceClientConfig(rt, properties).encodingIdentityServiceClient(codebook);
 
     /* The longest ID we've encounter that expands to >80 characters with I2. */
     List<Registration> registrations =

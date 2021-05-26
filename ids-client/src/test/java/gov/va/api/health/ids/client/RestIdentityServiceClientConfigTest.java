@@ -1,7 +1,6 @@
 package gov.va.api.health.ids.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import gov.va.api.health.ids.client.EncodedIdFormat.V2LookupHandler;
@@ -18,7 +17,6 @@ import gov.va.api.health.ids.client.PatientIcnFormat.PatientRegistrationHandler;
 import gov.va.api.health.ids.client.UuidFormat.UuidLookupHandler;
 import java.util.List;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -97,7 +95,7 @@ public class RestIdentityServiceClientConfigTest {
     Codebook codebook = Codebook.builder().map(List.of(Mapping.of("WHATEVER", "W"))).build();
     EncodingIdentityServiceClient c =
         (EncodingIdentityServiceClient)
-            new RestIdentityServiceClientConfig(rt, properties, null)
+            new RestIdentityServiceClientConfig(rt, properties)
                 .encodingIdentityServiceClient(codebook);
     /* order is [patient icn, i3, i2, uuid] formats, but any given format can be missing. */
     var formats = c.formats().iterator();
@@ -116,17 +114,5 @@ public class RestIdentityServiceClientConfigTest {
     if (properties.getUuid().isEnabled()) {
       assertFormatType(formats.next(), UuidLookupHandler.class, null);
     }
-  }
-
-  @Test
-  public void encodingIdentityServiceClientThrowsExceptionIfNotConfigured() {
-    assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(
-            () ->
-                new RestIdentityServiceClientConfig(
-                        rt,
-                        IdsClientProperties.builder().build(),
-                        new RestIdentityServiceClientProperties(null, null, ".*"))
-                    .encodingIdentityServiceClient(Codebook.builder().build()));
   }
 }

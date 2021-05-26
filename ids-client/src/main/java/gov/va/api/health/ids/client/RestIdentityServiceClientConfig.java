@@ -34,11 +34,9 @@ public class RestIdentityServiceClientConfig {
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
   @Autowired
   public RestIdentityServiceClientConfig(
-      @Autowired RestTemplate restTemplate,
-      @Autowired(required = false) IdsClientProperties preferredProperties,
-      @Autowired(required = false) RestIdentityServiceClientProperties deprecatedProperties) {
+      @Autowired RestTemplate restTemplate, @Autowired IdsClientProperties properties) {
     this.restTemplate = restTemplate;
-    properties = selectBestPropertiesOrDie(preferredProperties, deprecatedProperties);
+    this.properties = properties;
   }
 
   /**
@@ -101,35 +99,5 @@ public class RestIdentityServiceClientConfig {
     }
 
     return EncodingIdentityServiceClient.of(formats);
-  }
-
-  /** Create a new IdentityService that uses REST for communication. */
-  @SuppressWarnings("WeakerAccess")
-  @Deprecated
-  public IdentityService restIdentityServiceClient() {
-    return RestIdentityServiceClient.builder()
-        .baseRestTemplate(restTemplate)
-        .newRestTemplateSupplier(RestTemplate::new)
-        .url(properties.getUuid().getUrl())
-        .build();
-  }
-
-  private IdsClientProperties selectBestPropertiesOrDie(
-      IdsClientProperties preferredProperties,
-      RestIdentityServiceClientProperties deprecatedProperties) {
-    if (preferredProperties != null
-        && preferredProperties.isValid()
-        && preferredProperties.isEnabled()) {
-      return preferredProperties;
-    }
-    if (deprecatedProperties != null && deprecatedProperties.isEnabled()) {
-      log.warn("Use of identityservice properties is discouraged.");
-      log.warn(
-          "Update to preferred ids-client properties. See {}", IdsClientProperties.class.getName());
-      return IdsClientProperties.from(deprecatedProperties);
-    }
-
-    throw new IllegalArgumentException(
-        String.format("Missing configuration. See %s", IdsClientProperties.class.getName()));
   }
 }

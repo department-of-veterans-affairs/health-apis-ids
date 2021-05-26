@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -32,28 +31,6 @@ public class IdsClientProperties {
   private EncodedIdsFormatProperties encodedIds;
 
   private UuidFormatProperties uuid;
-
-  /** Convert the old deprecated style properties into the new properties. */
-  public static IdsClientProperties from(@NonNull RestIdentityServiceClientProperties oldStyle) {
-    return IdsClientProperties.builder()
-        .patientIcn(
-            PatientIcnFormatProperties.builder()
-                .enabled(true)
-                .idPattern(oldStyle.getPatientIdPattern())
-                .build())
-        .encodedIds(
-            EncodedIdsFormatProperties.builder()
-                .encodingKey(oldStyle.getEncodingKey())
-                .i2Enabled(true)
-                .i3Enabled(false)
-                .build())
-        .uuid(
-            UuidFormatProperties.builder()
-                .enabled(oldStyle.hasUrl())
-                .url(oldStyle.getUrl())
-                .build())
-        .build();
-  }
 
   /** Lazy getter with default disabled configuration. */
   public EncodedIdsFormatProperties getEncodedIds() {

@@ -61,7 +61,6 @@
                   <mainClass>gov.va.api.health.ids.client.Tools</mainClass>
                 </transformer>
               </transformers>
-              <minimizeJar>true</minimizeJar>
               <shadedArtifactAttached>true</shadedArtifactAttached>
               <createDependencyReducedPom>false</createDependencyReducedPom>
               <artifactSet>
