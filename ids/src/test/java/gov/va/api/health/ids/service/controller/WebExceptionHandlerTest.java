@@ -2,6 +2,7 @@ package gov.va.api.health.ids.service.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -14,16 +15,14 @@ import gov.va.api.health.ids.api.IdentityService.UnknownIdentity;
 import gov.va.api.health.ids.service.controller.IdServiceV1ApiController.UuidGenerator;
 import gov.va.api.health.ids.service.controller.impl.ResourceIdentityDetailRepository;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
+import java.util.stream.Stream;
 import javax.validation.ConstraintViolationException;
 import lombok.SneakyThrows;
-import org.junit.Before;
-import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -36,14 +35,7 @@ import org.springframework.web.method.annotation.ExceptionHandlerMethodResolver;
 import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
 import org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod;
 
-@SuppressWarnings("DefaultAnnotationParam")
-@RunWith(Parameterized.class)
 public class WebExceptionHandlerTest {
-  @Parameter(0)
-  public HttpStatus status;
-
-  @Parameter(1)
-  public Exception exception;
 
   @Mock ResourceIdentityDetailRepository resources;
 
@@ -52,23 +44,16 @@ public class WebExceptionHandlerTest {
   private IdServiceV1ApiController controller;
   private WebExceptionHandler exceptionHandler;
 
-  @Parameterized.Parameters(name = "{index}:{0} - {1}")
-  public static List<Object[]> parameters() {
-    return Arrays.asList(
-        test(HttpStatus.NOT_FOUND, new UnknownIdentity("1")),
-        test(HttpStatus.BAD_REQUEST, new ConstraintViolationException(new HashSet<>())),
-        test(HttpStatus.INTERNAL_SERVER_ERROR, new LookupFailed("1", "")),
-        test(HttpStatus.INTERNAL_SERVER_ERROR, new RegistrationFailed("")),
-        test(HttpStatus.INTERNAL_SERVER_ERROR, new RuntimeException())
-        //
-        );
+  static Stream<Arguments> parameters() {
+    return Stream.of(
+        arguments(HttpStatus.NOT_FOUND, new UnknownIdentity("1")),
+        arguments(HttpStatus.BAD_REQUEST, new ConstraintViolationException(new HashSet<>())),
+        arguments(HttpStatus.INTERNAL_SERVER_ERROR, new LookupFailed("1", "")),
+        arguments(HttpStatus.INTERNAL_SERVER_ERROR, new RegistrationFailed("")),
+        arguments(HttpStatus.INTERNAL_SERVER_ERROR, new RuntimeException()));
   }
 
-  private static Object[] test(HttpStatus status, Exception exception) {
-    return new Object[] {status, exception};
-  }
-
-  @Before
+  @BeforeEach
   public void _init() {
     MockitoAnnotations.initMocks(this);
     controller = new IdServiceV1ApiController(resources, uuidGenerator);
@@ -94,9 +79,10 @@ public class WebExceptionHandlerTest {
     return exceptionResolver;
   }
 
-  @Test
+  @ParameterizedTest
+  @MethodSource(value = "parameters")
   @SneakyThrows
-  public void expectStatus() {
+  public void expectStatus(HttpStatus status, Exception exception) {
     when(resources.findByUuid(Mockito.any())).thenThrow(exception);
     when(uuidGenerator.apply(Mockito.any())).thenReturn("x");
     MockMvc mvc =

@@ -1,6 +1,7 @@
 package gov.va.api.health.ids.service.controller.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import gov.va.api.health.ids.api.ResourceIdentity;
 import java.util.UUID;
@@ -37,8 +38,8 @@ public class Type5UuidGeneratorTest {
     assertThat(UUID.fromString(uuid1)).isNotNull();
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void nullValueIsRejected() {
-    generator().apply(null);
+    assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> generator().apply(null));
   }
 }

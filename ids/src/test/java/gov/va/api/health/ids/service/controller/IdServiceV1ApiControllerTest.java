@@ -2,6 +2,7 @@ package gov.va.api.health.ids.service.controller;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -15,10 +16,8 @@ import gov.va.api.health.ids.service.controller.impl.ResourceIdentityDetailRepos
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Rule;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -27,12 +26,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 public class IdServiceV1ApiControllerTest {
-  @Rule public final ExpectedException thrown = ExpectedException.none();
   @Mock ResourceIdentityDetailRepository repo;
   @Mock UuidGenerator uuidGenerator;
   private IdServiceV1ApiController controller;
 
-  @Before
+  @BeforeEach
   public void _init() {
     MockitoAnnotations.initMocks(this);
     controller = new IdServiceV1ApiController(repo, uuidGenerator);
@@ -67,11 +65,10 @@ public class IdServiceV1ApiControllerTest {
 
   @Test
   public void lookupThrowsUnknownIdentityExceptionWhenNoIdentitiesAreFound() {
-    thrown.expect(UnknownIdentity.class);
     List<ResourceIdentityDetail> searchResults = new ArrayList<>();
     when(repo.findByUuid("x")).thenReturn(searchResults);
 
-    controller.lookup("x");
+    assertThatExceptionOfType(UnknownIdentity.class).isThrownBy(() -> controller.lookup("x"));
   }
 
   /**
