@@ -1,6 +1,7 @@
 package gov.va.api.health.ids.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.ids.client.EncryptingIdEncoder.Codebook;
@@ -9,10 +10,10 @@ import gov.va.api.health.ids.client.EncryptingIdEncoder.IncompleteResourceIdenti
 import gov.va.api.health.ids.client.EncryptingIdEncoder.UnknownRepresentation;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class EncryptingIdEncoderTest {
-  @Test(expected = BadId.class)
+  @Test
   public void badIdIsThrownForGarbageIdBaseValue() {
     EncryptingIdEncoder encoder = encoder();
     ResourceIdentity original =
@@ -22,10 +23,11 @@ public class EncryptingIdEncoderTest {
             .identifier("ABC:123")
             .build();
     String encoded = encoder.encode(original);
-    encoder.decode(encoded.replaceAll("[A-M]", "1"));
+    assertThatExceptionOfType(BadId.class)
+        .isThrownBy(() -> encoder.decode(encoded.replaceAll("[A-M]", "1")));
   }
 
-  @Test(expected = BadId.class)
+  @Test
   public void badIdIsThrownForGarbageIdContent() {
     EncryptingIdEncoder encoder = encoder();
     ResourceIdentity original =
@@ -35,10 +37,11 @@ public class EncryptingIdEncoderTest {
             .identifier("ABC:123")
             .build();
     String encoded = encoder.encode(original);
-    encoder.decode(encoded.replaceAll("[A-M]", "X"));
+    assertThatExceptionOfType(BadId.class)
+        .isThrownBy(() -> encoder.decode(encoded.replaceAll("[A-M]", "X")));
   }
 
-  @Test(expected = BadId.class)
+  @Test
   public void badIdIsThrownForGarbageIdSize() {
     EncryptingIdEncoder encoder = encoder();
     ResourceIdentity original =
@@ -48,7 +51,8 @@ public class EncryptingIdEncoderTest {
             .identifier("ABC:123")
             .build();
     String encoded = encoder.encode(original);
-    encoder.decode(encoded.substring(0, encoded.length() - 7));
+    assertThatExceptionOfType(BadId.class)
+        .isThrownBy(() -> encoder.decode(encoded.substring(0, encoded.length() - 7)));
   }
 
   @Test
@@ -63,18 +67,32 @@ public class EncryptingIdEncoderTest {
     assertThat(cb.shorten("11")).isEqualTo("11");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void codebookThrowsExceptionForDuplicateLongValues() {
-    Codebook.builder()
-        .map(List.of(Mapping.of("ONE", "O"), Mapping.of("ONE", "T"), Mapping.of("THREE", "T")))
-        .build();
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(
+            () ->
+                Codebook.builder()
+                    .map(
+                        List.of(
+                            Mapping.of("ONE", "O"),
+                            Mapping.of("ONE", "T"),
+                            Mapping.of("THREE", "T")))
+                    .build());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void codebookThrowsExceptionForDuplicateShortValues() {
-    Codebook.builder()
-        .map(List.of(Mapping.of("ONE", "O"), Mapping.of("TWO", "T"), Mapping.of("THREE", "T")))
-        .build();
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(
+            () ->
+                Codebook.builder()
+                    .map(
+                        List.of(
+                            Mapping.of("ONE", "O"),
+                            Mapping.of("TWO", "T"),
+                            Mapping.of("THREE", "T")))
+                    .build());
   }
 
   @Test
@@ -101,55 +119,82 @@ public class EncryptingIdEncoderTest {
         .isEqualTo("NOT_WHATEVER:NOT_ANYTHING:ABC:123");
   }
 
-  @Test(expected = UnknownRepresentation.class)
+  @Test
   public void delimitedRepresentationToThrowsExceptionIfMissingId1() {
-    encoder().delimitedRepresentation().from("WHATEVER:ANYTHING");
+    assertThatExceptionOfType(UnknownRepresentation.class)
+        .isThrownBy(() -> encoder().delimitedRepresentation().from("WHATEVER:ANYTHING"));
   }
 
-  @Test(expected = UnknownRepresentation.class)
+  @Test
   public void delimitedRepresentationToThrowsExceptionIfMissingId2() {
-    encoder().delimitedRepresentation().from("WHATEVER:ANYTHING:");
+    assertThatExceptionOfType(UnknownRepresentation.class)
+        .isThrownBy(() -> encoder().delimitedRepresentation().from("WHATEVER:ANYTHING:"));
   }
 
-  @Test(expected = IncompleteResourceIdentity.class)
+  @Test
   public void delimitedRepresentationToThrowsExceptionIfMissingIdentity() {
-    encoder()
-        .delimitedRepresentation()
-        .to(ResourceIdentity.builder().system("WHATEVER").resource("ANYTHING").build());
+    assertThatExceptionOfType(IncompleteResourceIdentity.class)
+        .isThrownBy(
+            () ->
+                encoder()
+                    .delimitedRepresentation()
+                    .to(
+                        ResourceIdentity.builder()
+                            .system("WHATEVER")
+                            .resource("ANYTHING")
+                            .build()));
   }
 
-  @Test(expected = IncompleteResourceIdentity.class)
+  @Test
   public void delimitedRepresentationToThrowsExceptionIfMissingResource() {
-    encoder()
-        .delimitedRepresentation()
-        .to(ResourceIdentity.builder().system("WHATEVER").identifier("ABC:123").build());
+    assertThatExceptionOfType(IncompleteResourceIdentity.class)
+        .isThrownBy(
+            () ->
+                encoder()
+                    .delimitedRepresentation()
+                    .to(
+                        ResourceIdentity.builder()
+                            .system("WHATEVER")
+                            .identifier("ABC:123")
+                            .build()));
   }
 
-  @Test(expected = UnknownRepresentation.class)
+  @Test
   public void delimitedRepresentationToThrowsExceptionIfMissingResource1() {
-    encoder().delimitedRepresentation().from("WHATEVER");
+    assertThatExceptionOfType(UnknownRepresentation.class)
+        .isThrownBy(() -> encoder().delimitedRepresentation().from("WHATEVER"));
   }
 
-  @Test(expected = UnknownRepresentation.class)
+  @Test
   public void delimitedRepresentationToThrowsExceptionIfMissingResource2() {
-    encoder().delimitedRepresentation().from("WHATEVER:");
+    assertThatExceptionOfType(UnknownRepresentation.class)
+        .isThrownBy(() -> encoder().delimitedRepresentation().from("WHATEVER:"));
   }
 
-  @Test(expected = IncompleteResourceIdentity.class)
+  @Test
   public void delimitedRepresentationToThrowsExceptionIfMissingSystem() {
-    encoder()
-        .delimitedRepresentation()
-        .to(ResourceIdentity.builder().resource("ANYTHING").identifier("ABC:123").build());
+    assertThatExceptionOfType(IncompleteResourceIdentity.class)
+        .isThrownBy(
+            () ->
+                encoder()
+                    .delimitedRepresentation()
+                    .to(
+                        ResourceIdentity.builder()
+                            .resource("ANYTHING")
+                            .identifier("ABC:123")
+                            .build()));
   }
 
-  @Test(expected = UnknownRepresentation.class)
+  @Test
   public void delimitedRepresentationToThrowsExceptionIfMissingValues1() {
-    encoder().delimitedRepresentation().from("::");
+    assertThatExceptionOfType(UnknownRepresentation.class)
+        .isThrownBy(() -> encoder().delimitedRepresentation().from("::"));
   }
 
-  @Test(expected = UnknownRepresentation.class)
+  @Test
   public void delimitedRepresentationToThrowsExceptionIfMissingValues2() {
-    encoder().delimitedRepresentation().from(" : : ");
+    assertThatExceptionOfType(UnknownRepresentation.class)
+        .isThrownBy(() -> encoder().delimitedRepresentation().from(" : : "));
   }
 
   public EncryptingIdEncoder encoder() {

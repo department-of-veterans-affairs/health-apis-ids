@@ -3,7 +3,7 @@ package gov.va.api.health.ids.service.controller.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Objects;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ResourceIdentityDetailTest {
   /** Verifies no arg constructor, setters, equality only compares ID field. */

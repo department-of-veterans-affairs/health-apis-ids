@@ -9,7 +9,7 @@ import gov.va.api.health.ids.api.IdentityService.RegistrationFailed;
 import gov.va.api.health.ids.api.IdentityService.UnknownIdentity;
 import java.util.List;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ModelTest {
   @Test

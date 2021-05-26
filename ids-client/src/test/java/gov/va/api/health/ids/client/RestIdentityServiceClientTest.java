@@ -1,6 +1,7 @@
 package gov.va.api.health.ids.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,10 +17,8 @@ import java.util.Arrays;
 import java.util.List;
 import lombok.SneakyThrows;
 import org.assertj.core.util.Lists;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -33,12 +32,11 @@ import org.springframework.web.client.RestTemplate;
 
 @SuppressWarnings("unchecked")
 public class RestIdentityServiceClientTest {
-  @Rule public final ExpectedException thrown = ExpectedException.none();
   @Mock RestTemplate baseRestTemplate;
   @Mock RestTemplate restTemplate;
   private RestIdentityServiceClient client;
 
-  @Before
+  @BeforeEach
   public void _init() {
     MockitoAnnotations.initMocks(this);
     client =
@@ -48,22 +46,21 @@ public class RestIdentityServiceClientTest {
   @SneakyThrows
   private void assertLookupErrorHandler(
       Class<? extends Exception> exceptionType, HttpStatus status) {
-    thrown.expect(exceptionType);
     ClientHttpResponse response = mock(ClientHttpResponse.class);
     when(response.getStatusCode()).thenReturn(status);
     LookupErrorHandler handler = new LookupErrorHandler("x");
     assertThat(handler.hasError(response)).isTrue();
-    handler.handleError(response);
+    assertThatExceptionOfType(exceptionType).isThrownBy(() -> handler.handleError(response));
   }
 
   @SneakyThrows
   private void assertRegisterErrorHandler() {
-    thrown.expect(RegistrationFailed.class);
     ClientHttpResponse response = mock(ClientHttpResponse.class);
     when(response.getStatusCode()).thenReturn(HttpStatus.BAD_REQUEST);
     RegisterErrorHandler handler = new RegisterErrorHandler();
     assertThat(handler.hasError(response)).isTrue();
-    handler.handleError(response);
+    assertThatExceptionOfType(RegistrationFailed.class)
+        .isThrownBy(() -> handler.handleError(response));
   }
 
   private List<ResourceIdentity> identities() {
@@ -75,7 +72,7 @@ public class RestIdentityServiceClientTest {
   }
 
   @SneakyThrows
-  @Test()
+  @Test
   public void lookupErrorHandlerAllowsOk() {
     ClientHttpResponse r = mock(ClientHttpResponse.class);
     when(r.getStatusCode()).thenReturn(HttpStatus.OK);
@@ -85,30 +82,29 @@ public class RestIdentityServiceClientTest {
   }
 
   @SneakyThrows
-  @Test(expected = UnknownIdentity.class)
+  @Test
   public void lookupErrorHandlerHandlesNotFound() {
     ClientHttpResponse r = mock(ClientHttpResponse.class);
     when(r.getStatusCode()).thenReturn(HttpStatus.NOT_FOUND);
     LookupErrorHandler h = new LookupErrorHandler("x");
     assertThat(h.hasError(r)).isTrue();
-    h.handleError(r);
+    assertThatExceptionOfType(UnknownIdentity.class).isThrownBy(() -> h.handleError(r));
   }
 
   @SneakyThrows
-  @Test(expected = LookupFailed.class)
+  @Test
   public void lookupErrorHandlerHandlesNotOk() {
     ClientHttpResponse r = mock(ClientHttpResponse.class);
     when(r.getStatusCode()).thenReturn(HttpStatus.INTERNAL_SERVER_ERROR);
     LookupErrorHandler h = new LookupErrorHandler("x");
     assertThat(h.hasError(r)).isTrue();
-    h.handleError(r);
+    assertThatExceptionOfType(LookupFailed.class).isThrownBy(() -> h.handleError(r));
   }
 
   @Test
   public void lookupFailedExceptionIsThrownWhenBodyIsEmpty() {
-    thrown.expect(LookupFailed.class);
     mockLookupResponse(HttpStatus.OK, Lists.emptyList());
-    client.lookup("x");
+    assertThatExceptionOfType(LookupFailed.class).isThrownBy(() -> client.lookup("x"));
   }
 
   @Test
@@ -160,20 +156,20 @@ public class RestIdentityServiceClientTest {
   }
 
   @SneakyThrows
-  @Test(expected = RegistrationFailed.class)
+  @Test
   public void registerErrorHandlerHandlesNotOk() {
     ClientHttpResponse r = mock(ClientHttpResponse.class);
     when(r.getStatusCode()).thenReturn(HttpStatus.INTERNAL_SERVER_ERROR);
     RegisterErrorHandler h = new RegisterErrorHandler();
     assertThat(h.hasError(r)).isTrue();
-    h.handleError(r);
+    assertThatExceptionOfType(RegistrationFailed.class).isThrownBy(() -> h.handleError(r));
   }
 
   @Test
   public void registrationFailedExceptionIsThrownWhenBodyIsEmpty() {
-    thrown.expect(RegistrationFailed.class);
     mockRegisterResponse(HttpStatus.OK, Lists.emptyList());
-    client.register(identities());
+    assertThatExceptionOfType(RegistrationFailed.class)
+        .isThrownBy(() -> client.register(identities()));
   }
 
   @Test

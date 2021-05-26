@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import java.util.UUID;
 import lombok.Getter;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class Type5UuidGeneratorTest {
   @Getter

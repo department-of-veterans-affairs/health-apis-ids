@@ -9,7 +9,7 @@ import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.sentinel.categories.Local;
 import java.util.List;
 import java.util.UUID;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 
 public class IdsIT {

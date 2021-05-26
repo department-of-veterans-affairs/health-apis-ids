@@ -41,12 +41,6 @@ public class RestIdentityServiceClientConfig {
     properties = selectBestPropertiesOrDie(preferredProperties, deprecatedProperties);
   }
 
-  @Deprecated
-  public RestIdentityServiceClientConfig(
-      RestTemplate restTemplate, RestIdentityServiceClientProperties deprecatedProperties) {
-    this(restTemplate, null, deprecatedProperties);
-  }
-
   /**
    * Create a new IdentityService that uses encoded IDs and will fallback REST for communication for
    * legacy IDs.
