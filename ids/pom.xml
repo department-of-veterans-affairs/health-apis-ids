@@ -8,7 +8,7 @@
     <relativePath/>
   </parent>
   <artifactId>ids</artifactId>
-  <version>4.0.3-SNAPSHOT</version>
+  <version>4.0.3</version>
   <packaging>jar</packaging>
   <properties>
     <java-uuid-generator.version>3.1.5</java-uuid-generator.version>
